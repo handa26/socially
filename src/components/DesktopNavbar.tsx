@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
-import { BellIcon, HomeIcon, UserIcon } from "lucide-react";
+import { HomeIcon, UserIcon } from "lucide-react";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 
 import { Button } from "@/components/ui/button";
 import ModeToggle from "./ModeToggle";
+import NotificationIcon from "./NotificationIcon";
 
 async function DesktopNavbar() {
   const user = await currentUser();
@@ -22,12 +23,7 @@ async function DesktopNavbar() {
 
       {user ? (
         <>
-          <Button variant="ghost" className="flex items-center gap-2" asChild>
-            <Link href="/notifications">
-              <BellIcon className="w-4 h-4" />
-              <span className="hidden lg:inline">Notifications</span>
-            </Link>
-          </Button>
+          <NotificationIcon />
           <Button variant="ghost" className="flex items-center gap-2" asChild>
             <Link
               href={`/profile/${

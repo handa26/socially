@@ -21,6 +21,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import NotificationIcon from "./NotificationIcon";
 
 function MobileNavbar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -64,16 +65,7 @@ function MobileNavbar() {
 
             {isSignedIn ? (
               <>
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-3 justify-start"
-                  asChild
-                >
-                  <Link href="/notifications">
-                    <BellIcon className="w-4 h-4" />
-                    Notifications
-                  </Link>
-                </Button>
+                <NotificationIcon />
                 <Button
                   variant="ghost"
                   className="flex items-center gap-3 justify-start"
