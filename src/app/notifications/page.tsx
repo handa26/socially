@@ -15,7 +15,7 @@ import {
 } from "@/actions/notification.action";
 
 type Notifications = Awaited<ReturnType<typeof getNotifications>>;
-type Notification = Notifications[number];
+export type Notification = Notifications[number];
 
 const getNotificationIcon = (type: string) => {
   switch (type) {
