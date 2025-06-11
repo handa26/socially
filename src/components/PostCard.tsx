@@ -25,7 +25,7 @@ import {
 } from "@/actions/post.action";
 
 type Posts = Awaited<ReturnType<typeof getPosts>>;
-type Post = Posts[number];
+export type Post = Posts[number];
 
 const PostCard = ({
   post,
@@ -95,7 +95,7 @@ const PostCard = ({
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden cursor-pointer hover:bg-slate-300 hover:dark:bg-neutral-800">
       <CardContent className="p-4 sm:p-6">
         <div className="space-y-4">
           <div className="flex space-x-3 sm:space-x-4">
@@ -133,9 +133,11 @@ const PostCard = ({
                   />
                 )}
               </div>
-              <p className="mt-2 text-sm text-foreground break-words">
-                {post.content}
-              </p>
+              <Link href={`/status/${post.id}`}>
+                <p className="mt-2 text-sm text-foreground break-words">
+                  {post.content}
+                </p>
+              </Link>
             </div>
           </div>
 
