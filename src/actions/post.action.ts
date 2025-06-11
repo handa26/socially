@@ -220,3 +220,72 @@ export async function deletePost(postId: string) {
     return { success: false, error: "Failed to delete post" };
   }
 }
+
+export async function getPostById(postId: string) {
+  try {
+    const post = await prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            username: true,
+          },
+        },
+        comments: {
+          include: {
+            author: {
+              select: {
+                id: true,
+                username: true,
+                image: true,
+                name: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "asc",
+          },
+        },
+        likes: {
+          select: {
+            userId: true,
+          },
+        },
+        _count: {
+          select: {
+            likes: true,
+            comments: true,
+          },
+        },
+      },
+    });
+
+    return post;
+  } catch (error) {
+    console.log("Failed to get post", error);
+    throw new Error("Failed to get post");
+  }
+}
+
+export async function getCommentById(commentId: string) {
+  try {
+    const userId = await getDbUserId();
+    if (!userId) return;
+
+    const comment = await prisma.comment.findUnique({
+      where: {
+        id: commentId,
+      },
+    });
+
+    return comment;
+  } catch (error) {
+    console.log("Failed to get comment", error);
+    throw new Error("Failed to get comment");
+  }
+}
