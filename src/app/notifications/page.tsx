@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import toast from "react-hot-toast";
 import { formatDistanceToNow } from "date-fns";
 import { HeartIcon, MessageCircleIcon, UserPlusIcon } from "lucide-react";
@@ -75,64 +76,68 @@ const Page = () => {
               </div>
             ) : (
               notifications.map((notification) => (
-                <div
+                <Link
+                  href={`/status/${notification?.post?.id}`}
                   key={notification.id}
-                  className={`flex items-start gap-4 p-4 border-b hover:bg-muted/25 transition-colors ${
-                    !notification.read ? "bg-muted/50" : ""
-                  }`}
                 >
-                  <Avatar className="mt-1">
-                    <AvatarImage
-                      src={notification.creator.image ?? "/avatar.png"}
-                    />
-                  </Avatar>
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      {getNotificationIcon(notification.type)}
-                      <span>
-                        <span className="font-medium">
-                          {notification.creator.name ??
-                            notification.creator.username}
-                        </span>{" "}
-                        {notification.type === "FOLLOW"
-                          ? "started following you"
-                          : notification.type === "LIKE"
-                          ? "liked your post"
-                          : "commented on your post"}
-                      </span>
-                    </div>
+                  <div
+                    className={`flex items-start gap-4 p-4 border-b hover:bg-muted/25 transition-colors ${
+                      !notification.read ? "bg-muted/50" : ""
+                    }`}
+                  >
+                    <Avatar className="mt-1">
+                      <AvatarImage
+                        src={notification.creator.image ?? "/avatar.png"}
+                      />
+                    </Avatar>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        {getNotificationIcon(notification.type)}
+                        <span>
+                          <span className="font-medium">
+                            {notification.creator.name ??
+                              notification.creator.username}
+                          </span>{" "}
+                          {notification.type === "FOLLOW"
+                            ? "started following you"
+                            : notification.type === "LIKE"
+                            ? "liked your post"
+                            : "commented on your post"}
+                        </span>
+                      </div>
 
-                    {notification.post &&
-                      (notification.type === "LIKE" ||
-                        notification.type === "COMMENT") && (
-                        <div className="pl-6 space-y-2">
-                          <div className="text-sm text-muted-foreground rounded-md p-2 bg-muted/30 mt-2">
-                            <p>{notification.post.content}</p>
-                            {notification.post.image && (
-                              <img
-                                src={notification.post.image}
-                                alt="Post content"
-                                className="mt-2 rounded-md w-full max-w-[200px] h-auto object-cover"
-                              />
-                            )}
+                      {notification.post &&
+                        (notification.type === "LIKE" ||
+                          notification.type === "COMMENT") && (
+                          <div className="pl-6 space-y-2">
+                            <div className="text-sm text-muted-foreground rounded-md p-2 bg-muted/30 mt-2">
+                              <p>{notification.post.content}</p>
+                              {notification.post.image && (
+                                <img
+                                  src={notification.post.image}
+                                  alt="Post content"
+                                  className="mt-2 rounded-md w-full max-w-[200px] h-auto object-cover"
+                                />
+                              )}
+                            </div>
+
+                            {notification.type === "COMMENT" &&
+                              notification.comment && (
+                                <div className="text-sm p-2 bg-accent/50 rounded-md">
+                                  {notification.comment.content}
+                                </div>
+                              )}
                           </div>
+                        )}
 
-                          {notification.type === "COMMENT" &&
-                            notification.comment && (
-                              <div className="text-sm p-2 bg-accent/50 rounded-md">
-                                {notification.comment.content}
-                              </div>
-                            )}
-                        </div>
-                      )}
-
-                    <p className="text-sm text-muted-foreground pl-6">
-                      {formatDistanceToNow(new Date(notification.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </p>
+                      <p className="text-sm text-muted-foreground pl-6">
+                        {formatDistanceToNow(new Date(notification.createdAt), {
+                          addSuffix: true,
+                        })}
+                      </p>
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </ScrollArea>
