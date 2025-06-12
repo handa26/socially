@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { formatDistanceToNow } from "date-fns";
 import { HeartIcon, MessageCircleIcon, UserPlusIcon } from "lucide-react";
@@ -32,6 +33,8 @@ const getNotificationIcon = (type: string) => {
 };
 
 const Page = () => {
+  const router = useRouter();
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,8 +46,8 @@ const Page = () => {
         const data = await getNotifications();
         setNotifications(data);
 
-        const unreadIds = data.filter((n) => !n.read).map((n) => n.id);
-        if (unreadIds.length > 0) await markNotificationsAsRead(unreadIds);
+        // const unreadIds = data.filter((n) => !n.read).map((n) => n.id);
+        // if (unreadIds.length > 0) await markNotificationsAsRead(unreadIds);
       } catch (error) {
         toast.error("Failed to fetch notifications");
       } finally {
@@ -79,6 +82,12 @@ const Page = () => {
                 <Link
                   href={`/status/${notification?.post?.id}`}
                   key={notification.id}
+                  onClick={() => {
+                    if (!notification.read) {
+                      markNotificationsAsRead([notification.id]);
+                      router.refresh();
+                    }
+                  }}
                 >
                   <div
                     className={`flex items-start gap-4 p-4 border-b hover:bg-muted/25 transition-colors ${
