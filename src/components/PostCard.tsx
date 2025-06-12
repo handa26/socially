@@ -23,6 +23,7 @@ import {
   createComment,
   deletePost,
 } from "@/actions/post.action";
+import { formatPostDate } from "@/lib/utils";
 
 type Posts = Awaited<ReturnType<typeof getPosts>>;
 export type Post = Posts[number];
@@ -96,7 +97,7 @@ const PostCard = ({
 
   return (
     <Card className="overflow-hidden cursor-pointer hover:bg-slate-300 hover:dark:bg-neutral-800">
-      <CardContent className="p-4 sm:p-6">
+      <CardContent className="">
         <div className="space-y-4">
           <div className="flex space-x-3 sm:space-x-4">
             <Link href={`/profile/${post.author.username}`}>
@@ -121,7 +122,7 @@ const PostCard = ({
                     </Link>
                     <span>•</span>
                     <span>
-                      {formatDistanceToNow(new Date(post.createdAt))} ago
+                      {formatPostDate(new Date(post.createdAt))}
                     </span>
                   </div>
                 </div>
@@ -222,7 +223,7 @@ const PostCard = ({
                         </span>
                         <span className="text-sm text-muted-foreground">·</span>
                         <span className="text-sm text-muted-foreground">
-                          {formatDistanceToNow(new Date(comment.createdAt))} ago
+                          {formatPostDate(new Date(comment.createdAt))}
                         </span>
                       </div>
                       <p className="text-sm break-words">{comment.content}</p>
