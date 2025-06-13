@@ -65,7 +65,18 @@
 
 ## Screenshots 📸
 
-soon
+<div style="margin-top: 12px; margin-bottom: 12px">
+  <a href="">
+    <img src="./public/preview/Socially-frontpage.png" alt="homepage" style="width: 100%; border: 2px solid blue; border-radius: 10px;">
+  </a>
+</div>
+
+<div style="margin-top: 12px; margin-bottom: 12px">
+  <a href="">
+    <img src="./public/preview/Socially-profile.png" alt="profile" style="width: 100%; border: 2px solid blue; border-radius: 10px;">
+  </a>
+</div>
+
 
 ---
 
