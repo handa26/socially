@@ -8,6 +8,7 @@ import {
   getUserPosts,
   isFollowing,
 } from "@/actions/profile.action";
+import { getDbUserId } from "@/actions/user.action";
 
 export async function generateMetadata({
   params,
@@ -24,6 +25,7 @@ export async function generateMetadata({
 
 const Page = async ({ params }: { params: { username: string } }) => {
   const user = await getProfileByUsername(params.username);
+  const dbUserId = await getDbUserId();
   if (!user) notFound();
 
   const [posts, likedPosts, isCurrentUserFollowing] = await Promise.all([
@@ -38,6 +40,7 @@ const Page = async ({ params }: { params: { username: string } }) => {
       posts={posts}
       likedPosts={likedPosts}
       isFollowing={isCurrentUserFollowing}
+      dbUserId={dbUserId}
     />
   );
 };
