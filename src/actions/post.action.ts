@@ -107,14 +107,28 @@ export async function toggleLike(postId: string) {
 
     if (existingLike) {
       // unlike
-      await prisma.like.delete({
-        where: {
-          userId_postId: {
-            userId,
-            postId,
+      await prisma.$transaction([
+        prisma.like.delete({
+          where: {
+            userId_postId: {
+              userId,
+              postId,
+            },
           },
-        },
-      });
+        }),
+        ...(post.authorId !== userId
+          ? [
+              prisma.notification.deleteMany({
+                where: {
+                  type: "LIKE",
+                  userId: post.authorId, // recipient (post author)
+                  creatorId: userId, // person who liked
+                  postId,
+                },
+              }),
+            ]
+          : []),
+      ]);
     } else {
       // like and create notification (only if liking someone else's post)
       await prisma.$transaction([
