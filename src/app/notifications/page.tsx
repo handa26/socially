@@ -80,7 +80,11 @@ const Page = () => {
             ) : (
               notifications.map((notification) => (
                 <Link
-                  href={`/status/${notification?.post?.id}`}
+                  href={`${
+                    notification.type === "FOLLOW"
+                      ? `/profile/${notification.creator.username}`
+                      : `/status/${notification?.post?.id}`
+                  }`}
                   key={notification.id}
                   onClick={() => {
                     if (!notification.read) {
