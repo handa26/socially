@@ -3,7 +3,6 @@ import { useState } from "react";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { formatDistanceToNow } from "date-fns";
 import {
   HeartIcon,
   LogInIcon,
@@ -121,9 +120,7 @@ const PostCard = ({
                       @{post.author.username}
                     </Link>
                     <span>•</span>
-                    <span>
-                      {formatPostDate(new Date(post.createdAt))}
-                    </span>
+                    <span>{formatPostDate(new Date(post.createdAt))}</span>
                   </div>
                 </div>
                 {/* Check if current user is the post author */}
