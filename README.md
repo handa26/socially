@@ -36,7 +36,7 @@
    ```
 2. Install dependencies:
    ```bash
-   npm install
+   pnpm install or npm install
    ```
 3. Set up environment variables:
    Create a `.env` file in the root directory and add the following:
@@ -46,7 +46,7 @@
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
     CLERK_SECRET_KEY=
 
-    # Neon database
+    # Neon (PostgreSQL) database
     DATABASE_URL=
 
     # Uploadthing
