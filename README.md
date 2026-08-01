@@ -5,7 +5,7 @@
 ## Tech Stack 🛠️
 
 - **Frontend**:
-  - Next.js 15
+  - Next.js 16
   - TailwindCSS
   - shadcn/ui (for beautiful, reusable components)
 - **Backend**:
@@ -13,7 +13,7 @@
   - Clerk (authentication)
 - **Database**:
   - PostgreSQL (hosted on Neon)
-  - Prisma ORM (type-safe database interactions)
+  - Prisma 7 ORM (type-safe database interactions)
 - **Media Storage**:
   - uploadthing
 
@@ -48,17 +48,18 @@
 
     # Neon (PostgreSQL) database
     DATABASE_URL=
+    DATABASE_URL_UNPOOLED=
 
     # Uploadthing
     UPLOADTHING_TOKEN=
    ```
 4. Push database to prisma:
    ```bash
-   npx prisma db push
+   pnpm postinstall or npx prisma db push
    ```
 5. Run development:
    ```bash
-   npm run dev
+   pnpm dev or npm run dev
    ```
 
 ---
