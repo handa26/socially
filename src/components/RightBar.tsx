@@ -2,13 +2,14 @@ import Link from "next/link";
 
 import Search from "./Search";
 import Trends from "./Trends";
+import Recommendations from "./Recommendations";
 
 const RightBar = () => {
 	return (
 		<div className="pt-4 flex flex-col gap-4 sticky top-0 h-max">
 			<Search />
 			<Trends />
-			<h1>Recommendations</h1>
+			<Recommendations />
 
 			{/* FOOTER */}
 			<div className="text-textGray text-sm flex gap-x-4 flex-wrap">
