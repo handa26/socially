@@ -1,6 +1,14 @@
 import Link from "next/link";
+import { currentUser } from "@clerk/nextjs/server";
 
-const Homepage = () => {
+import CreatePost from "@/components/CreatePost/CreatePost";
+
+import { syncUser } from "@/actions/user.action";
+
+const Homepage = async () => {
+	const user = await currentUser();
+	if (user) await syncUser();
+
 	return (
 		<div className="">
 			<div className="px-4 pt-4 flex justify-between text-textGray font-bold border-b border-borderGray">
@@ -23,6 +31,8 @@ const Homepage = () => {
 					CSS
 				</Link>
 			</div>
+
+			<CreatePost />
 		</div>
 	);
 };
