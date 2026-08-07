@@ -1,4 +1,3 @@
-// components/CreatePost/ImageEditor.tsx
 "use client";
 
 import { useState } from "react";
@@ -74,7 +73,7 @@ export const ImageEditor = ({
 					<button
 						type="button"
 						onClick={onClose}
-						className="p-2 hover:bg-[#2F3336] rounded-full transition"
+						className="p-2 hover:bg-borderGray rounded-full transition"
 					>
 						<X className="w-5 h-5" />
 					</button>
@@ -111,13 +110,13 @@ export const ImageEditor = ({
 									className={`p-4 rounded-xl border-2 transition text-left ${
 										isSelected
 											? "border-iconBlue bg-iconBlue/10"
-											: "border-borderGray hover:border-[#2F3336]"
+											: "border-borderGray hover:border-borderGray"
 									}`}
 								>
 									<div className="flex items-center gap-3">
 										<div
 											className={`p-2 rounded-full ${
-												isSelected ? "bg-iconBlue/20" : "bg-[#2F3336]"
+												isSelected ? "bg-iconBlue/20" : "bg-borderGray"
 											}`}
 										>
 											<Icon
@@ -149,7 +148,7 @@ export const ImageEditor = ({
 					<button
 						type="button"
 						onClick={onClose}
-						className="px-6 py-2 rounded-full hover:bg-[#2F3336] transition"
+						className="px-6 py-2 rounded-full hover:bg-borderGray transition"
 					>
 						Cancel
 					</button>
