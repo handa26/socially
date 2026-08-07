@@ -13,9 +13,11 @@ import { getDbUserId } from "@/actions/user.action";
 export async function generateMetadata({
   params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  const user = await getProfileByUsername(params.username);
+  const { username } = await params;
+
+  const user = await getProfileByUsername(username);
 
   return {
     title: `${user?.name ?? user?.username} `,
@@ -23,8 +25,10 @@ export async function generateMetadata({
   };
 }
 
-const Page = async ({ params }: { params: { username: string } }) => {
-  const user = await getProfileByUsername(params.username);
+const Page = async ({ params }: { params: Promise<{ username: string }> }) => {
+  const { username } = await params;
+
+  const user = await getProfileByUsername(username);
   const dbUserId = await getDbUserId();
   if (!user) notFound();
 
