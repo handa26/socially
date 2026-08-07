@@ -2,12 +2,17 @@ import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 
 import CreatePost from "@/components/CreatePost/CreatePost";
+import PostCard from "@/components/PostCard";
 
-import { syncUser } from "@/actions/user.action";
+import { getDbUserId, syncUser } from "@/actions/user.action";
+import { getPosts } from "@/actions/post.action";
 
 const Homepage = async () => {
 	const user = await currentUser();
 	if (user) await syncUser();
+
+	const posts = await getPosts();
+	const dbUserId = await getDbUserId();
 
 	return (
 		<div className="">
@@ -33,6 +38,9 @@ const Homepage = async () => {
 			</div>
 
 			<CreatePost />
+			{posts.map((post) => (
+				<PostCard key={post.id} post={post} dbUserId={dbUserId} />
+			))}
 		</div>
 	);
 };

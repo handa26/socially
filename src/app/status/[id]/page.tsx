@@ -1,18 +1,26 @@
-import { notFound } from "next/navigation";
-
 import PostCardDetail from "@/components/PostCardDetail";
 
 import { getPostById } from "@/actions/post.action";
 import { getDbUserId } from "@/actions/user.action";
 
 const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const postId = (await params).id;
-  const post = await getPostById(postId);
-  const dbUserId = await getDbUserId();
+	const postId = (await params).id;
+	const post = await getPostById(postId);
+	const dbUserId = await getDbUserId();
 
-  if (!post) notFound();
+	if (!post) {
+		return (
+			<div className="flex justify-center items-center min-h-100">
+				<p className="text-muted-foreground">Post not found</p>
+			</div>
+		);
+	}
 
-  return <PostCardDetail post={post} dbUserId={dbUserId} />;
+	return (
+		<div className="max-w-150 mx-auto">
+			<PostCardDetail post={post} dbUserId={dbUserId} />
+		</div>
+	);
 };
 
 export default Page;

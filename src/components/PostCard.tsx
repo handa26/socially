@@ -1,281 +1,442 @@
 "use client";
+
 import { useState } from "react";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import {
-  HeartIcon,
-  LogInIcon,
-  MessageCircleCodeIcon,
-  SendIcon,
+	Heart,
+	MessageCircle,
+	Repeat2,
+	Share,
+	MoreHorizontal,
+	Trash2,
+	ExternalLink,
+	Bookmark,
 } from "lucide-react";
+import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
 
 import { Card, CardContent } from "./ui/card";
-import { Avatar, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import DeleteAlertDialog from "./DeleteAlertDialog";
 import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 import {
-  getPosts,
-  toggleLike,
-  createComment,
-  deletePost,
+	getPosts,
+	toggleLike,
+	createComment,
+	deletePost,
+	repostPost,
+	savePost,
 } from "@/actions/post.action";
-import { formatPostDate } from "@/lib/utils";
+import { formatPostDate, cn } from "@/lib/utils";
+import { Post } from "@/lib/types";
 
-type Posts = Awaited<ReturnType<typeof getPosts>>;
-export type Post = Posts[number];
+interface PostCardProps {
+	post: Post;
+	dbUserId: string | null;
+	detailed?: boolean;
+}
 
-const PostCard = ({
-  post,
-  dbUserId,
-}: {
-  post: Post;
-  dbUserId: string | null;
-}) => {
-  const { user } = useUser();
+const PostCard = ({ post, dbUserId, detailed = false }: PostCardProps) => {
+	const { user } = useUser();
+	const isAuthor = dbUserId === post.author.id;
 
-  const [newComment, setNewComment] = useState("");
-  const [isCommenting, setIsCommenting] = useState(false);
-  const [isLiking, setIsLiking] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [hasLiked, setHasLiked] = useState(
-    post.likes.some((like) => like.userId === dbUserId)
-  );
-  const [optimisticLikes, setOptimisticLikes] = useState(post._count.likes);
-  const [showComments, setShowComments] = useState(false);
+	const [isLiking, setIsLiking] = useState(false);
+	const [isCommenting, setIsCommenting] = useState(false);
+	const [isReposting, setIsReposting] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
+	const [newComment, setNewComment] = useState("");
+	const [showReplyInput, setShowReplyInput] = useState(false);
 
-  const handleLike = async () => {
-    if (isLiking) return;
+	const [hasLiked, setHasLiked] = useState(
+		post.likes.some((like) => like.userId === dbUserId),
+	);
+	const [hasReposted, setHasReposted] = useState(
+		post?.reposts.some((repost) => repost.userId === dbUserId),
+	);
+	const [likesCount, setLikesCount] = useState(post._count.likes);
+  const [repostsCount, setRepostsCount] = useState(post._count.reposts);
+	const [commentsCount, setCommentsCount] = useState(post.comments.length);
+
+	const handleLike = async () => {
+		if (isLiking || !user) return;
+
+		try {
+			setIsLiking(true);
+			const prevLiked = hasLiked;
+			setHasLiked(!prevLiked);
+			setLikesCount((prev) => prev + (prevLiked ? -1 : 1));
+
+			const result = await toggleLike(post.id);
+			if (!result?.success) {
+				setHasLiked(prevLiked);
+				setLikesCount((prev) => prev - (prevLiked ? -1 : 1));
+				toast.error("Failed to like post");
+			}
+		} catch (error) {
+			toast.error("Something went wrong");
+		} finally {
+			setIsLiking(false);
+		}
+	};
+
+	const handleComment = async () => {
+		if (!newComment.trim() || isCommenting || !user) return;
+
+		try {
+			setIsCommenting(true);
+			const result = await createComment(post.id, newComment.trim());
+
+			if (result?.success) {
+				setCommentsCount((prev) => prev + 1);
+				setNewComment("");
+				setShowReplyInput(false);
+				toast.success("Reply posted!");
+			} else {
+				toast.error("Failed to post reply");
+			}
+		} catch (error) {
+			toast.error("Something went wrong");
+		} finally {
+			setIsCommenting(false);
+		}
+	};
+
+	const handleRepost = async () => {
+    if (isReposting || !user) return;
 
     try {
-      setIsLiking(true);
-      setHasLiked((prevState) => !prevState);
-      setOptimisticLikes((prevState) => prevState + (hasLiked ? -1 : 1));
-      await toggleLike(post.id);
-    } catch (error) {
-      setOptimisticLikes(post._count.likes);
-      setHasLiked(post.likes.some((like) => like.userId === dbUserId));
-    } finally {
-      setIsLiking(false);
-    }
-  };
+      setIsReposting(true);
+      const prevReposted = hasReposted;
+      setHasReposted(!prevReposted);
+      setRepostsCount((prev) => prev + (prevReposted ? -1 : 1));
 
-  const handleComment = async () => {
-    if (!newComment.trim() || isCommenting) return;
-
-    try {
-      setIsCommenting(true);
-      const result = await createComment(post.id, newComment);
+      const result = await repostPost(post.id);
+      
       if (result?.success) {
-        toast.success("Comment posted successfully");
-        setNewComment("");
+        toast.success(result.action === "reposted" ? "Reposted!" : "Removed repost");
+        if (!result.success) {
+          setHasReposted(prevReposted);
+          setRepostsCount((prev) => prev - (prevReposted ? -1 : 1));
+        }
+      } else {
+        setHasReposted(prevReposted);
+        setRepostsCount((prev) => prev - (prevReposted ? -1 : 1));
+        toast.error("Failed to repost");
       }
     } catch (error) {
-      toast.error("Failed to add comment");
+      toast.error("Something went wrong");
     } finally {
-      setIsCommenting(false);
+      setIsReposting(false);
     }
   };
 
-  const handleDeletePost = async () => {
-    if (isDeleting) return;
+	const handleDelete = async () => {
+		if (isDeleting) return;
 
-    try {
-      setIsDeleting(true);
-      const result = await deletePost(post.id);
-      if (result.success) toast.success("Post deleted successfully");
-      else throw new Error(result.error);
-    } catch (error) {
-      toast.error("Failed to delete post");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
+		try {
+			setIsDeleting(true);
+			const result = await deletePost(post.id);
 
-  return (
-    <Card className="overflow-hidden cursor-pointer hover:bg-slate-300 hover:dark:bg-neutral-800">
-      <CardContent className="">
-        <div className="space-y-4">
-          <div className="flex space-x-3 sm:space-x-4">
-            <Link href={`/profile/${post.author.username}`}>
-              <Avatar className="size-8 sm:w-10 sm:h-10">
-                <AvatarImage src={post.author.image ?? "/avatar.png"} />
-              </Avatar>
-            </Link>
+			if (result.success) {
+				toast.success("Post deleted");
+				// Optionally refresh or redirect
+			} else {
+				toast.error("Failed to delete post");
+			}
+		} catch (error) {
+			toast.error("Something went wrong");
+		} finally {
+			setIsDeleting(false);
+		}
+	};
 
-            {/* POST HEADER & TEXT CONTENT */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2 truncate">
-                  <Link
-                    href={`/profile/${post.author.username}`}
-                    className="font-semibold truncate"
-                  >
-                    {post.author.name}
-                  </Link>
-                  <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                    <Link href={`/profile/${post.author.username}`}>
-                      @{post.author.username}
-                    </Link>
-                    <span>•</span>
-                    <span>{formatPostDate(new Date(post.createdAt))}</span>
-                  </div>
-                </div>
-                {/* Check if current user is the post author */}
-                {dbUserId === post.author.id && (
-                  <DeleteAlertDialog
-                    isDeleting={isDeleting}
-                    onDelete={handleDeletePost}
-                  />
-                )}
-              </div>
-              <Link href={`/status/${post.id}`}>
-                <p className="mt-2 text-sm text-foreground break-words">
-                  {post.content}
-                </p>
-              </Link>
-            </div>
-          </div>
+	const handleSave = async () => {
+		if (!user) return;
+		try {
+			const result = await savePost(post.id);
+			if (result?.success) {
+				toast.success(
+					result.action === "saved" ? "Saved!" : "Removed from saves",
+				);
+			}
+		} catch (error) {
+			toast.error("Failed to save post");
+		}
+	};
 
-          {/* POST IMAGE */}
-          {post.image && (
-            <div className="rounded-lg overflow-hidden">
-              <img
-                src={post.image}
-                alt="Post content"
-                className="w-full h-auto object-cover"
-              />
-            </div>
-          )}
+	return (
+		<div className="border-x border-b border-border hover:bg-accent/5 transition-colors">
+			<div className="px-4 py-3">
+				{/* Post header */}
+				<div className="flex items-start justify-between">
+					<div className="flex items-start space-x-3 min-w-0 flex-1">
+						<Link
+							href={`/profile/${post.author.username}`}
+							className="shrink-0"
+						>
+							<Avatar className="h-10 w-10">
+								<AvatarImage src={post.author.image || "/avatar.png"} />
+								<AvatarFallback>{post.author.name?.[0] || "U"}</AvatarFallback>
+							</Avatar>
+						</Link>
 
-          {/* LIKE & COMMENT BUTTONS */}
-          <div className="flex items-center pt-2 space-x-4">
-            {user ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className={`text-muted-foreground gap-2 ${
-                  hasLiked
-                    ? "text-red-500 hover:text-red-600"
-                    : "hover:text-red-500"
-                }`}
-                onClick={handleLike}
-              >
-                {hasLiked ? (
-                  <HeartIcon className="size-5 fill-current" />
-                ) : (
-                  <HeartIcon className="size-5" />
-                )}
-                <span>{optimisticLikes}</span>
-              </Button>
-            ) : (
-              <SignInButton mode="modal">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground gap-2"
-                >
-                  <HeartIcon className="size-5" />
-                  <span>{optimisticLikes}</span>
-                </Button>
-              </SignInButton>
-            )}
+						<div className="flex-1 min-w-0">
+							<div className="flex items-center space-x-1 text-sm">
+								<Link
+									href={`/profile/${post.author.username}`}
+									className="font-bold hover:underline truncate"
+								>
+									{post.author.name}
+								</Link>
+								<span className="text-muted-foreground truncate">
+									@{post.author.username}
+								</span>
+								<span className="text-muted-foreground">·</span>
+								<span className="text-muted-foreground whitespace-nowrap">
+									{formatDistanceToNow(new Date(post.createdAt), {
+										addSuffix: true,
+									})}
+								</span>
+							</div>
 
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground gap-2 hover:text-blue-500"
-              onClick={() => setShowComments((prev) => !prev)}
-            >
-              <MessageCircleCodeIcon
-                className={`size-5 ${
-                  showComments ? "fill-blue-500 text-blue-500" : ""
-                }`}
-              />
-              <span>{post.comments.length}</span>
-            </Button>
-          </div>
+							{/* Post content */}
+							<Link href={`/status/${post.id}`}>
+								<p className="mt-1 text-base wrap-break-words whitespace-pre-wrap">
+									{post.content}
+								</p>
+							</Link>
 
-          {/* COMMENTS SECTION */}
-          {showComments && (
-            <div className="space-y-4 pt-4 border-t">
-              <div className="space-y-4">
-                {/* DISPLAY COMMENTS */}
-                {post.comments.map((comment) => (
-                  <div key={comment.id} className="flex space-x-3">
-                    <Avatar className="size-8 flex-shrink-0">
-                      <AvatarImage
-                        src={comment.author.image ?? "/avatar.png"}
-                      />
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span className="font-medium text-sm">
-                          {comment.author.name}
-                        </span>
-                        <span className="text-sm text-muted-foreground">
-                          @{comment.author.username}
-                        </span>
-                        <span className="text-sm text-muted-foreground">·</span>
-                        <span className="text-sm text-muted-foreground">
-                          {formatPostDate(new Date(comment.createdAt))}
-                        </span>
-                      </div>
-                      <p className="text-sm break-words">{comment.content}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+							{/* Post image */}
+							{post.image && (
+								<div className="mt-3 rounded-2xl overflow-hidden border border-border">
+									<div className="relative">
+										<img
+											src={post.image}
+											alt="Post content"
+											className="w-full h-auto object-cover max-h-128"
+										/>
+									</div>
+								</div>
+							)}
 
-              {user ? (
-                <div className="flex space-x-3">
-                  <Avatar className="size-8 flex-shrink-0">
-                    <AvatarImage src={user?.imageUrl || "/avatar.png"} />
-                  </Avatar>
-                  <div className="flex-1">
-                    <Textarea
-                      placeholder="Write a comment..."
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      className="min-h-[80px] resize-none"
-                    />
-                    <div className="flex justify-end mt-2">
-                      <Button
-                        size="sm"
-                        onClick={handleComment}
-                        className="flex items-center gap-2"
-                        disabled={!newComment.trim() || isCommenting}
-                      >
-                        {isCommenting ? (
-                          "Posting..."
-                        ) : (
-                          <>
-                            <SendIcon className="size-4" />
-                            Comment
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex justify-center p-4 border rounded-lg bg-muted/50">
-                  <SignInButton mode="modal">
-                    <Button variant="outline" className="gap-2">
-                      <LogInIcon className="size-4" />
-                      Sign in to comment
-                    </Button>
-                  </SignInButton>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+							{/* Action buttons */}
+							<div className="flex items-center justify-between mt-3 max-w-md">
+								{/* Comment button */}
+								<Button
+									variant="ghost"
+									size="sm"
+									className="text-muted-foreground hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30 gap-1"
+									onClick={() => setShowReplyInput(!showReplyInput)}
+								>
+									<MessageCircle className="h-5 w-5" />
+									<span className="text-sm">{commentsCount}</span>
+								</Button>
+
+								{/* Repost button */}
+								{user ? (
+									<Button
+										variant="ghost"
+										size="sm"
+										className={cn(
+                      "gap-1 hover:bg-green-50 dark:hover:bg-green-950/30",
+                      hasReposted 
+                        ? "text-green-500 hover:text-green-600" 
+                        : "text-muted-foreground hover:text-green-500"
+                    )}
+										onClick={handleRepost}
+										disabled={isReposting}
+									>
+										<Repeat2 className={cn("h-5 w-5")} />
+                    <span className="text-sm">{repostsCount}</span>
+									</Button>
+								) : (
+									<SignInButton mode="modal">
+										<Button
+											variant="ghost"
+											size="sm"
+											className="text-muted-foreground hover:text-green-500 hover:bg-green-50 dark:hover:bg-green-950/30 gap-1"
+										>
+											<Repeat2 className="h-5 w-5" />
+                      <span className="text-sm">{repostsCount}</span>
+										</Button>
+									</SignInButton>
+								)}
+
+								{/* Like button */}
+								{user ? (
+									<Button
+										variant="ghost"
+										size="sm"
+										className={cn(
+											"gap-1 hover:bg-red-50 dark:hover:bg-red-950/30",
+											hasLiked
+												? "text-red-500 hover:text-red-600"
+												: "text-muted-foreground hover:text-red-500",
+										)}
+										onClick={handleLike}
+										disabled={isLiking}
+									>
+										<Heart
+											className={cn("h-5 w-5", hasLiked && "fill-current")}
+										/>
+										<span className="text-sm">{likesCount}</span>
+									</Button>
+								) : (
+									<SignInButton mode="modal">
+										<Button
+											variant="ghost"
+											size="sm"
+											className="text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 gap-1"
+										>
+											<Heart className="h-5 w-5" />
+											<span className="text-sm">{likesCount}</span>
+										</Button>
+									</SignInButton>
+								)}
+
+								{/* Share button */}
+								<Button
+									variant="ghost"
+									size="sm"
+									className="text-muted-foreground hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+									onClick={() => {
+										navigator.clipboard.writeText(
+											`${window.location.origin}/status/${post.id}`,
+										);
+										toast.success("Link copied!");
+									}}
+								>
+									<Share className="h-5 w-5" />
+								</Button>
+							</div>
+
+							{/* Reply input */}
+							{showReplyInput && user && (
+								<div className="mt-3 flex items-start space-x-3">
+									<Avatar className="h-8 w-8 shrink-0">
+										<AvatarImage src={user.imageUrl || "/avatar.png"} />
+										<AvatarFallback>
+											{user.firstName?.[0] || "U"}
+										</AvatarFallback>
+									</Avatar>
+									<div className="flex-1">
+										<Textarea
+											placeholder="Write a reply..."
+											value={newComment}
+											onChange={(e) => setNewComment(e.target.value)}
+											className="min-h-15 resize-none border-0 p-0 focus-visible:ring-0"
+											onKeyDown={(e) => {
+												if (e.key === "Enter" && !e.shiftKey) {
+													e.preventDefault();
+													handleComment();
+												}
+											}}
+										/>
+										<div className="flex justify-end mt-2">
+											<Button
+												size="sm"
+												onClick={handleComment}
+												disabled={!newComment.trim() || isCommenting}
+												className="rounded-full px-4"
+											>
+												{isCommenting ? "Posting..." : "Reply"}
+											</Button>
+										</div>
+									</div>
+								</div>
+							)}
+						</div>
+					</div>
+
+					{/* More options dropdown */}
+					<div className="shrink-0 ml-2">
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+									<MoreHorizontal className="h-4 w-4" />
+								</Button>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent align="end">
+								{isAuthor && (
+									<DropdownMenuItem
+										onClick={handleDelete}
+										className="text-red-500 focus:text-red-500"
+									>
+										<Trash2 className="h-4 w-4 mr-2" />
+										Delete
+									</DropdownMenuItem>
+								)}
+								<DropdownMenuItem onClick={handleSave}>
+									<Bookmark className="h-4 w-4 mr-2" />
+									Save
+								</DropdownMenuItem>
+								<DropdownMenuItem>
+									<Link
+										href={`/status/${post.id}`}
+										className="flex items-center"
+									>
+										<ExternalLink className="h-4 w-4 mr-2" />
+										View details
+									</Link>
+								</DropdownMenuItem>
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
+				</div>
+
+				{/* Comments section (only for detailed view) */}
+				{detailed && post.comments.length > 0 && (
+					<div className="mt-4 space-y-4">
+						{post.comments.map((comment) => (
+							<div
+								key={comment.id}
+								className="flex items-start space-x-3 pl-12"
+							>
+								<Link href={`/profile/${comment.author.username}`}>
+									<Avatar className="h-8 w-8 shrink-0">
+										<AvatarImage src={comment.author.image || "/avatar.png"} />
+										<AvatarFallback>
+											{comment.author.name?.[0] || "U"}
+										</AvatarFallback>
+									</Avatar>
+								</Link>
+								<div className="flex-1 min-w-0">
+									<div className="flex items-center space-x-1 text-sm">
+										<Link
+											href={`/profile/${comment.author.username}`}
+											className="font-bold hover:underline"
+										>
+											{comment.author.name}
+										</Link>
+										<span className="text-muted-foreground">
+											@{comment.author.username}
+										</span>
+										<span className="text-muted-foreground">·</span>
+										<span className="text-muted-foreground text-xs">
+											{formatDistanceToNow(new Date(comment.createdAt), {
+												addSuffix: true,
+											})}
+										</span>
+									</div>
+									<p className="text-sm wrap-break-words">{comment.content}</p>
+								</div>
+							</div>
+						))}
+					</div>
+				)}
+			</div>
+		</div>
+	);
 };
 
 export default PostCard;

@@ -192,10 +192,16 @@ export async function getPosts() {
 						userId: true,
 					},
 				},
+				reposts: {
+					select: {
+						userId: true,
+					}
+				},
 				_count: {
 					select: {
 						likes: true,
 						comments: true,
+						reposts: true,
 					},
 				},
 			},
@@ -395,10 +401,16 @@ export async function getPostById(postId: string) {
 						userId: true,
 					},
 				},
+				reposts: {
+					select: {
+						userId: true,
+					},
+				},
 				_count: {
 					select: {
 						likes: true,
 						comments: true,
+						reposts: true,
 					},
 				},
 			},
