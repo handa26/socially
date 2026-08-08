@@ -19,8 +19,15 @@ import {
 	EyeOff,
 } from "lucide-react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MediaPreview } from "./MediaPreview";
 import { ImageEditor } from "./ImageEditor";
+import PostTextarea from "./PostTextarea";
+import PostActions from "./PostActions";
+import SensitiveContentToggle from "./SensitiveContentToggle";
+import CharacterCounter from "./CharacterCounter";
+import PostButton from "./PostButton";
+
 import { createPost } from "@/actions/post.action";
 
 interface MediaFile {
@@ -141,6 +148,8 @@ const CreatePost = () => {
 	};
 
 	const isOverLimit = content.length > 280;
+	const isDisabled =
+		(!content.trim() && !media) || isPosting || isUploading || isOverLimit;
 
 	if (!user) return null;
 
@@ -148,34 +157,20 @@ const CreatePost = () => {
 		<div className="border-b border-borderGray p-4">
 			<div className="flex gap-3">
 				{/* Avatar */}
-				<div className="shrink-0">
-					<div className="w-10 h-10 rounded-full overflow-hidden bg-borderGray">
-						{user.imageUrl ? (
-							<Image
-								src={user.imageUrl}
-								alt={user.username || "User"}
-								width={40}
-								height={40}
-								className="object-cover"
-							/>
-						) : (
-							<div className="w-full h-full flex items-center justify-center text-xl text-white">
-								{(user.username || "U")[0].toUpperCase()}
-							</div>
-						)}
-					</div>
-				</div>
+				<Avatar className="shrink-0" size="lg">
+					{user.imageUrl && <AvatarImage src={user.imageUrl} />}
+					<AvatarFallback>
+						{(user.username || "U")[0].toUpperCase()}
+					</AvatarFallback>
+				</Avatar>
 
 				{/* Content Area */}
 				<div className="flex-1 min-w-0">
 					{/* Text Input */}
-					<textarea
-						placeholder="What's happening?"
-						className="w-full bg-transparent border-none outline-none resize-none text-xl placeholder:text-textGray min-h-20"
+					<PostTextarea
 						value={content}
-						onChange={(e) => setContent(e.target.value)}
+						onChange={setContent}
 						disabled={isPosting}
-						maxLength={280}
 					/>
 
 					{/* Media Preview */}
@@ -202,143 +197,39 @@ const CreatePost = () => {
 
 					{/* Sensitive Content Toggle */}
 					{media && (
-						<div className="mt-3 flex items-center gap-2">
-							<button
-								type="button"
-								onClick={() =>
-									setSettings((prev) => ({
-										...prev,
-										sensitive: !prev.sensitive,
-									}))
-								}
-								className={`flex items-center gap-2 text-sm px-3 py-1.5 rounded-full transition ${
-									settings.sensitive
-										? "bg-iconPink/20 text-iconPink hover:bg-iconPink/30"
-										: "bg-borderGray text-textGray hover:bg-[#1D1F23]"
-								}`}
-							>
-								{settings.sensitive ? (
-									<>
-										<EyeOff className="w-4 h-4" />
-										Sensitive Content
-									</>
-								) : (
-									<>
-										<Eye className="w-4 h-4" />
-										Mark as Sensitive
-									</>
-								)}
-							</button>
-						</div>
+						<SensitiveContentToggle
+							isSensitive={settings.sensitive}
+							onToggle={() =>
+								setSettings((prev) => ({
+									...prev,
+									sensitive: !prev.sensitive,
+								}))
+							}
+						/>
 					)}
 
 					{/* Actions Bar */}
 					<div className="flex items-center justify-between mt-3 pt-3 border-t border-borderGray">
-						<div className="flex items-center gap-1">
-							{/* Media Upload Button */}
-							<button
-								type="button"
-								onClick={() => fileInputRef.current?.click()}
-								className="p-2 hover:bg-iconBlue/10 rounded-full transition text-iconBlue"
-								disabled={isPosting}
-							>
-								<ImageIcon className="w-5 h-5" />
-							</button>
-
-							<input
-								ref={fileInputRef}
-								type="file"
-								accept="image/*,video/*"
-								onChange={handleFileSelect}
-								className="hidden"
-								multiple={false}
-							/>
-
-							{/* GIF Button */}
-							<button
-								type="button"
-								className="p-2 hover:bg-iconBlue/10 rounded-full transition text-iconBlue"
-								disabled={isPosting}
-							>
-								<GiftIcon className="w-5 h-5" />
-							</button>
-
-							{/* Poll Button */}
-							<button
-								type="button"
-								className="p-2 hover:bg-iconBlue/10 rounded-full transition text-iconBlue"
-								disabled={isPosting}
-							>
-								<BarChart2 className="w-5 h-5" />
-							</button>
-
-							{/* Emoji Button */}
-							<button
-								type="button"
-								className="p-2 hover:bg-iconBlue/10 rounded-full transition text-iconBlue"
-								onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-								disabled={isPosting}
-							>
-								<Smile className="w-5 h-5" />
-							</button>
-
-							{/* Schedule Button */}
-							<button
-								type="button"
-								className="p-2 hover:bg-iconBlue/10 rounded-full transition text-iconBlue"
-								disabled={isPosting}
-							>
-								<Calendar className="w-5 h-5" />
-							</button>
-
-							{/* Location Button */}
-							<button
-								type="button"
-								className="p-2 hover:bg-iconBlue/10 rounded-full transition text-iconBlue"
-								disabled={isPosting}
-							>
-								<MapPin className="w-5 h-5" />
-							</button>
-						</div>
+						<PostActions
+							onFileSelect={handleFileSelect}
+							onEmojiToggle={() => setShowEmojiPicker(!showEmojiPicker)}
+							showEmojiPicker={showEmojiPicker}
+							disabled={isPosting}
+							fileInputRef={fileInputRef}
+						/>
 
 						<div className="flex items-center gap-3">
-							{/* Character Count */}
-							{content.length > 0 && (
-								<span
-									className={`text-sm ${
-										isOverLimit ? "text-red-500" : "text-textGray"
-									}`}
-								>
-									{getCharacterCount()}
-								</span>
-							)}
-
-							{/* Post Button */}
-							<button
-								type="button"
+							<CharacterCounter
+								length={content.length}
+								maxLength={280}
+								isVisible={content.length > 0}
+							/>
+							<PostButton
 								onClick={handleSubmit}
-								disabled={
-									(!content.trim() && !media) ||
-									isPosting ||
-									isUploading ||
-									isOverLimit
-								}
-								className="bg-iconBlue text-white font-bold rounded-full px-6 py-2 
-                                         hover:bg-opacity-90 transition disabled:opacity-50 
-                                         disabled:cursor-not-allowed flex items-center gap-2"
-							>
-								{isPosting || isUploading ? (
-									<>
-										<Loader2 className="w-4 h-4 animate-spin" />
-										{isUploading ? "Uploading..." : "Posting..."}
-									</>
-								) : (
-									<>
-										<Send className="w-4 h-4" />
-										Post
-									</>
-								)}
-							</button>
+								isDisabled={isDisabled}
+								isPosting={isPosting}
+								isUploading={isUploading}
+							/>
 						</div>
 					</div>
 				</div>
