@@ -90,7 +90,7 @@ const LeftBar = async () => {
 			<div className="flex flex-col gap-4 text-lg items-center xxl:items-start">
 				{/* LOGO */}
 				<Link href="/" className="p-2 rounded-full hover:bg-[#181818]">
-					<Image src="icons/logo.svg" alt="logo" width={24} height={24} />
+					<Image src="/icons/logo.svg" alt="logo" width={24} height={24} />
 				</Link>
 
 				{/* MENU LIST */}
@@ -102,7 +102,7 @@ const LeftBar = async () => {
 							className="p-2 rounded-full hover:bg-[#181818] flex items-center gap-4"
 						>
 							<Image
-								src={`icons/${item.icon}`}
+								src={`/icons/${item.icon}`}
 								alt={item.name}
 								width={24}
 								height={24}
