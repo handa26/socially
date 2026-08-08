@@ -2,7 +2,7 @@ import Link from "next/link";
 import { currentUser } from "@clerk/nextjs/server";
 
 import CreatePost from "@/components/CreatePost/CreatePost";
-import PostCard from "@/components/PostCard";
+import PostCard from "@/components/PostCard/PostCard";
 
 import { getDbUserId, syncUser } from "@/actions/user.action";
 import { getPosts } from "@/actions/post.action";

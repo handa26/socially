@@ -1,4 +1,4 @@
-import PostCard from "./PostCard";
+import PostCard from "./PostCard/PostCard";
 
 import { Post } from "@/lib/types";
 

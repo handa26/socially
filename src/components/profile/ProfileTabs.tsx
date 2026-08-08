@@ -3,7 +3,7 @@
 import { FileTextIcon, HeartIcon, Repeat2Icon, GridIcon } from "lucide-react";
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import PostCard from "@/components/PostCard";
+import PostCard from "@/components/PostCard/PostCard";
 
 import { cn } from "@/lib/utils";
 
