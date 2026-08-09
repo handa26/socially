@@ -80,28 +80,28 @@ const PostCard = ({
 	};
 
 	const handleComment = async (content: string) => {
-    if (!content.trim() || isCommenting || !user) return;
+		if (!content.trim() || isCommenting || !user) return;
 
-    try {
-      setIsCommenting(true);
-      const result = await createComment(post.id, content.trim());
+		try {
+			setIsCommenting(true);
+			const result = await createComment(post.id, content.trim());
 
-      if (result?.success) {
-        setCommentsCount((prev) => prev + 1);
-        setShowReplyInput(false);
-        toast.success("Reply posted!");
-        return true;
-      } else {
-        toast.error("Failed to post reply");
-        return false;
-      }
-    } catch (error) {
-      toast.error("Something went wrong");
-      return false;
-    } finally {
-      setIsCommenting(false);
-    }
-  };
+			if (result?.success) {
+				setCommentsCount((prev) => prev + 1);
+				setShowReplyInput(false);
+				toast.success("Reply posted!");
+				return true;
+			} else {
+				toast.error("Failed to post reply");
+				return false;
+			}
+		} catch (error) {
+			toast.error("Something went wrong");
+			return false;
+		} finally {
+			setIsCommenting(false);
+		}
+	};
 
 	const handleRepost = async () => {
 		if (isReposting || !user) return;
@@ -142,13 +142,20 @@ const PostCard = ({
 			const result = await deletePost(post.id);
 
 			if (result.success) {
-				toast.success("Post deleted");
-				// Optionally refresh or redirect
+				toast.success("Post deleted successfully");
+
+				if (
+					typeof window !== "undefined" &&
+					window.location.pathname.includes("/status/")
+				) {
+					window.location.href = "/";
+				}
 			} else {
-				toast.error("Failed to delete post");
+				toast.error(result.error || "Failed to delete post");
 			}
 		} catch (error) {
-			toast.error("Something went wrong");
+			console.error("Delete error:", error);
+      toast.error("Something went wrong");
 		} finally {
 			setIsDeleting(false);
 		}
@@ -231,13 +238,13 @@ const PostCard = ({
 
 							{/* Reply Input */}
 							{showReplyInput && user && (
-                <CommentInput
-                  onSubmit={handleComment}
-                  isCommenting={isCommenting}
-                  placeholder="Write a reply..."
-                  autoFocus
-                />
-              )}
+								<CommentInput
+									onSubmit={handleComment}
+									isCommenting={isCommenting}
+									placeholder="Write a reply..."
+									autoFocus
+								/>
+							)}
 						</div>
 					</div>
 

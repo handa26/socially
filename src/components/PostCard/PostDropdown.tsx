@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { MoreHorizontal, Trash2, Bookmark, ExternalLink } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -8,6 +11,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import DeleteConfirmationDialog from "../DeleteConfirmationDialog";
 
 interface PostDropdownProps {
 	isAuthor: boolean;
@@ -24,6 +28,17 @@ const PostDropdown = ({
 	postId,
 	isDeleting,
 }: PostDropdownProps) => {
+	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+	const handleDeleteClick = () => {
+		setShowDeleteDialog(true);
+	};
+
+	const handleConfirmDelete = async () => {
+		await onDelete();
+		setShowDeleteDialog(false);
+	};
+
 	return (
 		<div className="shrink-0 ml-2">
 			<DropdownMenu>
@@ -35,12 +50,12 @@ const PostDropdown = ({
 				<DropdownMenuContent align="end">
 					{isAuthor && (
 						<DropdownMenuItem
-							onClick={onDelete}
-							className="text-red-500 focus:text-red-500"
-							disabled={isDeleting}
+							onClick={handleDeleteClick}
+							className="text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-950/30"
+							variant="destructive"
 						>
 							<Trash2 className="h-4 w-4 mr-2" />
-							{isDeleting ? "Deleting..." : "Delete"}
+							Delete
 						</DropdownMenuItem>
 					)}
 					<DropdownMenuItem onClick={onSave}>
@@ -55,6 +70,13 @@ const PostDropdown = ({
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
+
+			<DeleteConfirmationDialog
+				isOpen={showDeleteDialog}
+				onClose={() => setShowDeleteDialog(false)}
+				onConfirm={handleConfirmDelete}
+				isDeleting={isDeleting}
+			/>
 		</div>
 	);
 };
