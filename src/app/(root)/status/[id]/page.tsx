@@ -1,4 +1,5 @@
 import PostCardDetail from "@/components/PostCardDetail";
+import MobileProfileNav from "@/components/profile/MobileProfileNav";
 
 import { getPostById } from "@/actions/post.action";
 import { getDbUserId } from "@/actions/user.action";
@@ -18,6 +19,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
 
 	return (
 		<div className="max-w-150 mx-auto">
+			<MobileProfileNav title="Post" />
 			<PostCardDetail post={post} dbUserId={dbUserId} />
 		</div>
 	);

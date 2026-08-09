@@ -43,7 +43,7 @@ const Page = async ({ params }: { params: Promise<{ username: string }> }) => {
 
 	return (
     <>
-      <MobileProfileNav username={username} />  
+      <MobileProfileNav title={username} postCount={posts.length} />  
       <ProfilePageClient
         user={user}
         posts={posts}
