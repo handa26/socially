@@ -6,6 +6,7 @@ import { useUser } from "@clerk/nextjs";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 interface CommentInputProps {
 	onSubmit: (content: string) => Promise<boolean | void>;
@@ -55,51 +56,54 @@ const CommentInput = ({
 	};
 
 	return (
-		<div className="mt-3 flex items-start space-x-3">
-			<Avatar className="h-8 w-8 shrink-0">
-				<AvatarImage src={user.imageUrl || "/avatar.png"} />
-				<AvatarFallback>{user.firstName?.[0] || "U"}</AvatarFallback>
-			</Avatar>
-			<div className="flex-1">
-				<Textarea
-					ref={textareaRef}
-					placeholder={placeholder}
-					value={content}
-					onChange={(e) => setContent(e.target.value)}
-					onKeyDown={handleKeyDown}
-					className="min-h-15 resize-none border-0 p-0 focus-visible:ring-0 text-sm"
-					disabled={isCommenting}
-				/>
-				<div className="flex justify-end gap-2 mt-2">
-					{onCancel && (
+		<>
+			<Separator className="my-5" />
+			<div className="mt-3 flex items-start space-x-3">
+				<Avatar size="lg">
+					<AvatarImage src={user.imageUrl || "/avatar.png"} />
+					<AvatarFallback>{user.firstName?.[0] || "U"}</AvatarFallback>
+				</Avatar>
+				<div className="flex-1">
+					<Textarea
+						ref={textareaRef}
+						placeholder={placeholder}
+						value={content}
+						onChange={(e) => setContent(e.target.value)}
+						onKeyDown={handleKeyDown}
+						className="min-h-15 resize-none border-0 p-1.5 focus-visible:ring-0 text-sm"
+						disabled={isCommenting}
+					/>
+					<div className="flex justify-end gap-2 mt-2">
+						{onCancel && (
+							<Button
+								size="sm"
+								variant="ghost"
+								onClick={onCancel}
+								disabled={isCommenting}
+								className="rounded-full px-4"
+							>
+								Cancel
+							</Button>
+						)}
 						<Button
 							size="sm"
-							variant="ghost"
-							onClick={onCancel}
-							disabled={isCommenting}
+							onClick={handleSubmit}
+							disabled={!content.trim() || isCommenting}
 							className="rounded-full px-4"
 						>
-							Cancel
+							{isCommenting ? (
+								<>
+									<span className="animate-spin mr-2">⟳</span>
+									Posting...
+								</>
+							) : (
+								"Reply"
+							)}
 						</Button>
-					)}
-					<Button
-						size="sm"
-						onClick={handleSubmit}
-						disabled={!content.trim() || isCommenting}
-						className="rounded-full px-4"
-					>
-						{isCommenting ? (
-							<>
-								<span className="animate-spin mr-2">⟳</span>
-								Posting...
-							</>
-						) : (
-							"Reply"
-						)}
-					</Button>
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 
