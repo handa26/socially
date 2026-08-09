@@ -7,8 +7,6 @@ import Link from "next/link";
 import { Repeat2 } from "lucide-react";
 
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import { Button } from "../ui/button";
-import { Textarea } from "../ui/textarea";
 
 import PostActions from "./PostActions";
 import PostHeader from "./PostHeader";
@@ -47,7 +45,6 @@ const PostCard = ({
 	const [isCommenting, setIsCommenting] = useState(false);
 	const [isReposting, setIsReposting] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
-	const [newComment, setNewComment] = useState("");
 	const [showReplyInput, setShowReplyInput] = useState(false);
 
 	const [hasLiked, setHasLiked] = useState(
@@ -82,29 +79,29 @@ const PostCard = ({
 		}
 	};
 
-	const handleComment = async () => {
-		if (!newComment.trim() || isCommenting || !user) return;
+	const handleComment = async (content: string) => {
+    if (!content.trim() || isCommenting || !user) return;
 
-		console.log(newComment);
+    try {
+      setIsCommenting(true);
+      const result = await createComment(post.id, content.trim());
 
-		try {
-			setIsCommenting(true);
-			const result = await createComment(post.id, newComment.trim());
-
-			if (result?.success) {
-				setCommentsCount((prev) => prev + 1);
-				setNewComment("");
-				setShowReplyInput(false);
-				toast.success("Reply posted!");
-			} else {
-				toast.error("Failed to post reply");
-			}
-		} catch (error) {
-			toast.error("Something went wrong");
-		} finally {
-			setIsCommenting(false);
-		}
-	};
+      if (result?.success) {
+        setCommentsCount((prev) => prev + 1);
+        setShowReplyInput(false);
+        toast.success("Reply posted!");
+        return true;
+      } else {
+        toast.error("Failed to post reply");
+        return false;
+      }
+    } catch (error) {
+      toast.error("Something went wrong");
+      return false;
+    } finally {
+      setIsCommenting(false);
+    }
+  };
 
 	const handleRepost = async () => {
 		if (isReposting || !user) return;
@@ -232,52 +229,15 @@ const PostCard = ({
 								showReplyInput={showReplyInput}
 							/>
 
-							{/* Reply Input - Using CommentInput */}
-							{/* {showReplyInput && user && (
+							{/* Reply Input */}
+							{showReplyInput && user && (
                 <CommentInput
-                  onSubmit={createComment}
+                  onSubmit={handleComment}
                   isCommenting={isCommenting}
                   placeholder="Write a reply..."
                   autoFocus
-									postId={post.id}
                 />
-              )} */}
-
-							{/* Reply Input */}
-							{showReplyInput && user && (
-								<div className="mt-3 flex items-start space-x-3">
-									<Avatar className="h-8 w-8 shrink-0">
-										<AvatarImage src={user.imageUrl || "/avatar.png"} />
-										<AvatarFallback>
-											{user.firstName?.[0] || "U"}
-										</AvatarFallback>
-									</Avatar>
-									<div className="flex-1">
-										<Textarea
-											placeholder="Write a reply..."
-											value={newComment}
-											onChange={(e) => setNewComment(e.target.value)}
-											className="min-h-15 resize-none border-0 p-0 focus-visible:ring-0"
-											onKeyDown={(e) => {
-												if (e.key === "Enter" && !e.shiftKey) {
-													e.preventDefault();
-													handleComment();
-												}
-											}}
-										/>
-										<div className="flex justify-end mt-2">
-											<Button
-												size="sm"
-												onClick={handleComment}
-												disabled={!newComment.trim() || isCommenting}
-												className="rounded-full px-4"
-											>
-												{isCommenting ? "Posting..." : "Reply"}
-											</Button>
-										</div>
-									</div>
-								</div>
-							)}
+              )}
 						</div>
 					</div>
 

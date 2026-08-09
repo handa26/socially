@@ -8,12 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface CommentInputProps {
-	onSubmit: (postId: string, content: string) => Promise<boolean | void>;
+	onSubmit: (content: string) => Promise<boolean | void>;
 	isCommenting: boolean;
 	placeholder?: string;
 	autoFocus?: boolean;
 	onCancel?: () => void;
-  postId: string;
 }
 
 const CommentInput = ({
@@ -22,7 +21,6 @@ const CommentInput = ({
 	placeholder = "Write a reply...",
 	autoFocus = false,
 	onCancel,
-  postId,
 }: CommentInputProps) => {
 	const { user } = useUser();
 
@@ -40,7 +38,7 @@ const CommentInput = ({
 	const handleSubmit = async () => {
 		if (!content.trim() || isCommenting) return;
 
-		const result = await onSubmit(postId, content);
+		const result = await onSubmit(content);
 		if (result !== false) {
 			setContent("");
 		}
