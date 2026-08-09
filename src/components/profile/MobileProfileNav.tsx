@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
 interface MobileProfileNavProps {
-	username: string;
+	title: string;
 	postCount?: number;
 }
 
-const MobileProfileNav = ({ username, postCount }: MobileProfileNavProps) => {
+const MobileProfileNav = ({ title, postCount }: MobileProfileNavProps) => {
 	const router = useRouter();
 
 	return (
@@ -25,7 +25,7 @@ const MobileProfileNav = ({ username, postCount }: MobileProfileNavProps) => {
 					<ArrowLeft className="h-5 w-5" />
 				</Button>
 				<div className="flex-1 ml-2">
-					<h1 className="font-bold text-lg">{username}</h1>
+					<h1 className="font-bold text-lg">{title}</h1>
 					{postCount !== undefined && (
 						<p className="text-xs text-muted-foreground">{postCount} posts</p>
 					)}
