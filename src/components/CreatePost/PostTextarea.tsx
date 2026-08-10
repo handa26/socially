@@ -8,7 +8,7 @@ const PostTextarea = ({ value, onChange, disabled }: PostTextareaProps) => {
 	return (
 		<textarea
 			placeholder="What's happening?"
-			className="w-full bg-transparent border-none outline-none resize-none text-xl placeholder:text-textGray min-h-20"
+			className="w-full bg-transparent border-none outline-none resize-none text-xl placeholder:text-textGray"
 			value={value}
 			onChange={(e) => onChange(e.target.value)}
 			disabled={disabled}

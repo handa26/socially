@@ -209,7 +209,7 @@ const CreatePost = () => {
 					)}
 
 					{/* Actions Bar */}
-					<div className="flex items-center justify-between mt-3 pt-3 border-t border-borderGray">
+					<div className="flex items-center justify-between py-3 border-t border-borderGray">
 						<PostActions
 							onFileSelect={handleFileSelect}
 							onEmojiToggle={() => setShowEmojiPicker(!showEmojiPicker)}

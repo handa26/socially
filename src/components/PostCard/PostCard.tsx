@@ -176,7 +176,7 @@ const PostCard = ({
 	};
 
 	return (
-		<div className="border-x border-b border-border hover:bg-accent/5 transition-colors">
+		<div className="border-x border-b border-border hover:bg-accent/5 transition-colors pb-5">
 			{isRepost && (
 				<div className="px-4 pt-2 text-xs text-muted-foreground flex items-center gap-1">
 					<Repeat2 className="h-3 w-3" />
