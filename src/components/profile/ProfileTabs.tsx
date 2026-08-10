@@ -46,14 +46,14 @@ const ProfileTabs = ({
 
 	return (
 		<Tabs defaultValue="posts" className="w-full">
-			<TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
+			<TabsList className="w-full justify-start rounded-none h-auto p-0 bg-transparent" variant="line">
 				{tabs.map((tab) => (
 					<TabsTrigger
 						key={tab.value}
 						value={tab.value}
 						className="flex items-center gap-2 rounded-none data-[state=active]:border-b-2 
                      data-[state=active]:border-primary data-[state=active]:bg-transparent 
-                     px-6 py-3 font-semibold hover:bg-accent/50 transition-colors"
+                     px-6 py-3 font-semibold hover:bg-accent/50 transition-colors h-12.5 cursor-pointer"
 					>
 						<tab.icon className="h-4 w-4" />
 						<span>{tab.label}</span>
@@ -67,7 +67,7 @@ const ProfileTabs = ({
 			</TabsList>
 
 			{tabs.map((tab) => (
-				<TabsContent key={tab.value} value={tab.value} className="mt-0">
+				<TabsContent key={tab.value} value={tab.value} className="mt-0 border-t">
 					{tab.content.length > 0 ? (
 						<div className="divide-y divide-border">
 							{tab.content.map((post) => (

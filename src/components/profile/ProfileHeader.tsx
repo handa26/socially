@@ -28,11 +28,11 @@ const ProfileHeader = ({
 	const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
 
 	return (
-		<div className="border-b border-border">
+		<div className="mb-7.5">
 			{/* Cover Image - optional */}
 			<div className="h-48 bg-linear-to-r from-blue-500/20 to-purple-500/20" />
 
-			<div className="px-4 -mt-16">
+			<div className="px-4 -mt-12.5">
 				<div className="flex justify-between items-end">
 					<Avatar className="h-24 w-24 border-4 border-background">
 						<AvatarImage src={user.image ?? "/avatar.png"} />
@@ -41,13 +41,14 @@ const ProfileHeader = ({
 						</AvatarFallback>
 					</Avatar>
 
-					<div className="flex gap-2 pb-2">
+					<div className="">
 						{!isOwnProfile ? (
 							<Button
 								onClick={onFollow}
 								disabled={isUpdatingFollow}
 								variant={isFollowing ? "outline" : "default"}
-								className="rounded-full font-bold px-6"
+								className="rounded-full font-bold px-6 cursor-pointer"
+								size="lg"
 							>
 								{isFollowing ? "Unfollow" : "Follow"}
 							</Button>
@@ -55,7 +56,8 @@ const ProfileHeader = ({
 							<Button
 								onClick={onEdit}
 								variant="outline"
-								className="rounded-full font-bold px-6"
+								className="rounded-full font-bold px-6 cursor-pointer"
+								size="lg"
 							>
 								Edit Profile
 							</Button>
