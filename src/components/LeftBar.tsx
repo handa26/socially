@@ -1,8 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
 import { currentUser } from "@clerk/nextjs/server";
+import { SignOutButton } from "@clerk/nextjs";
+import { LogOutIcon, EllipsisIcon } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { getUserByClerkId } from "@/actions/user.action";
+import { redirect } from "next/navigation";
 
 const baseMenuList = [
 	{
@@ -69,7 +80,7 @@ const baseMenuList = [
 
 const LeftBar = async () => {
 	const authUser = await currentUser();
-	if (!authUser) return null;
+	if (!authUser) return redirect("/sign-in");
 
 	const user = await getUserByClerkId(authUser.id);
 	if (!user) return null;
@@ -132,7 +143,7 @@ const LeftBar = async () => {
 				<div className="flex items-center gap-2">
 					<div className="w-10 h-10 relative rounded-full overflow-hidden">
 						<Image
-							src="/avatar.png"
+							src={user.image || "/avatar.png"}
 							alt="user avatar"
 							width={100}
 							height={100}
@@ -143,7 +154,22 @@ const LeftBar = async () => {
 						<span className="text-sm text-textGray">@{user.username}</span>
 					</div>
 				</div>
-				<div className="hidden xxl:block cursor-pointer font-bold">...</div>
+				<DropdownMenu>
+					<DropdownMenuTrigger
+						className="hidden xxl:block cursor-pointer font-bold p-2 rounded-full hover:bg-[#181818]"
+						render={<Button asChild variant="outline" className="" />}
+					>
+						<EllipsisIcon />
+					</DropdownMenuTrigger>
+					<DropdownMenuContent>
+						<DropdownMenuItem variant="destructive">
+							<LogOutIcon />
+							<SignOutButton redirectUrl="/sign-in">
+								Log out
+							</SignOutButton>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 		</div>
 	);
