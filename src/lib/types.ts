@@ -35,3 +35,34 @@ export interface Post {
     reposts: number;
   };
 }
+
+export interface Notification {
+  id: string;
+  userId: string;
+  creatorId: string;
+  type: "LIKE" | "COMMENT" | "FOLLOW" | "REPOST" | "SAVE";
+  read: boolean;
+  postId: string | null;
+  commentId: string | null;
+  createdAt: Date;
+  creator: {
+    id: string;
+    name: string | null;
+    username: string;
+    image: string | null;
+  };
+  post: {
+    id: string;
+    content: string | null;
+    image: string | null;
+    authorId: string;
+    author: {
+      username: string;
+    };
+  } | null;
+  comment: {
+    id: string;
+    content: string;
+    createdAt: Date;
+  } | null;
+}

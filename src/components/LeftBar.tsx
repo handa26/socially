@@ -11,9 +11,11 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import NotificationIcon from "./notifications/NotificationIcon";
 
 import { getUserByClerkId } from "@/actions/user.action";
 import { redirect } from "next/navigation";
+import { getUnreadNotificationCount } from "@/actions/notification.action";
 
 const baseMenuList = [
 	{
@@ -28,12 +30,12 @@ const baseMenuList = [
 		link: "/",
 		icon: "explore.svg",
 	},
-	{
-		id: 3,
-		name: "Notification",
-		link: "/notifications",
-		icon: "notification.svg",
-	},
+	// {
+	// 	id: 3,
+	// 	name: "Notification",
+	// 	link: "/notifications",
+	// 	icon: "notification.svg",
+	// },
 	{
 		id: 4,
 		name: "Messages",
@@ -95,6 +97,8 @@ const LeftBar = async () => {
 		return item;
 	});
 
+	const unreadCount = await getUnreadNotificationCount();
+
 	return (
 		<div className="h-screen sticky top-0 flex flex-col justify-between pt-2 pb-8">
 			{/* LOGO, MENU, BUTTON */}
@@ -106,20 +110,22 @@ const LeftBar = async () => {
 
 				{/* MENU LIST */}
 				<div className="flex flex-col gap-4">
-					{menuList.map((item) => (
-						<Link
-							href={item.link}
-							key={item.id}
-							className="p-2 rounded-full hover:bg-[#181818] flex items-center gap-4"
-						>
-							<Image
-								src={`/icons/${item.icon}`}
-								alt={item.name}
-								width={24}
-								height={24}
-							/>
-							<span className="hidden xxl:inline">{item.name}</span>
-						</Link>
+					{menuList.map((item, i) => (
+						<div key={item.id || i}>
+							{i === 2 && user && <NotificationIcon initialCount={unreadCount} />}
+							<Link
+								href={item.link}
+								className="p-2 rounded-full hover:bg-[#181818] flex items-center gap-4"
+							>
+								<Image
+									src={`/icons/${item.icon}`}
+									alt={item.name}
+									width={24}
+									height={24}
+								/>
+								<span className="hidden xxl:inline">{item.name}</span>
+							</Link>
+						</div>
 					))}
 				</div>
 
@@ -164,9 +170,7 @@ const LeftBar = async () => {
 					<DropdownMenuContent>
 						<DropdownMenuItem variant="destructive">
 							<LogOutIcon />
-							<SignOutButton redirectUrl="/sign-in">
-								Log out
-							</SignOutButton>
+							<SignOutButton redirectUrl="/sign-in">Log out</SignOutButton>
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>

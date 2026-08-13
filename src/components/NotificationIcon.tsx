@@ -4,7 +4,7 @@ import { BellIcon } from "lucide-react";
 import { Button } from "./ui/button";
 
 import { getNotifications } from "@/actions/notification.action";
-import { Notification } from "@/app/notifications/page";
+import { Notification } from "@/app/(root)/notifications/page";
 
 const NotificationIcon = async () => {
   // const [unreadNotifsCounter, setUnreadNotifsCounter] = useState(0);
