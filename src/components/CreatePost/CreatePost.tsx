@@ -3,21 +3,7 @@
 import { useState, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import toast from "react-hot-toast";
-import {
-	ImageIcon,
-	GiftIcon,
-	BarChart2,
-	Smile,
-	Calendar,
-	MapPin,
-	X,
-	Loader2,
-	Send,
-	Eye,
-	EyeOff,
-} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MediaPreview } from "./MediaPreview";
@@ -29,6 +15,7 @@ import CharacterCounter from "./CharacterCounter";
 import PostButton from "./PostButton";
 
 import { createPost } from "@/actions/post.action";
+import { cn } from "@/lib/utils";
 
 interface MediaFile {
 	file: File;
@@ -41,7 +28,7 @@ interface Settings {
 	sensitive: boolean;
 }
 
-const CreatePost = () => {
+const CreatePost = ({ isModal = false }: { isModal?: boolean }) => {
 	const { user } = useUser();
 	const router = useRouter();
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -154,7 +141,7 @@ const CreatePost = () => {
 	if (!user) return null;
 
 	return (
-		<div className="border-b border-borderGray p-4">
+		<div className={cn("border-b border-borderGray p-4", isModal && "border-none pt-2")}>
 			<div className="flex gap-3">
 				{/* Avatar */}
 				<Avatar className="shrink-0" size="lg">

@@ -137,7 +137,7 @@ const LeftBar = async () => {
 					<Image src="icons/post.svg" alt="new post" width={24} height={24} />
 				</Link>
 				<Link
-					href=""
+					href="/compose/post"
 					className="hidden xxl:block bg-white text-black rounded-full font-bold py-2 px-20"
 				>
 					Post
