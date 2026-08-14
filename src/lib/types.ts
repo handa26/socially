@@ -29,6 +29,9 @@ export interface Post {
   comments: Comment[];
   likes: Like[];
   reposts: Repost[];
+  repostedBy?: {
+    name: string | undefined;
+  }
   _count: {
     likes: number;
     comments: number;

@@ -177,10 +177,10 @@ const PostCard = ({
 
 	return (
 		<div className="border-x border-b border-border hover:bg-accent/5 transition-colors pb-5">
-			{isRepost && (
+			{isRepost && post.repostedBy?.name !== undefined && (
 				<div className="px-4 pt-2 text-xs text-muted-foreground flex items-center gap-1">
 					<Repeat2 className="h-3 w-3" />
-					<span>Reposted</span>
+					<span>Reposted by {post.repostedBy?.name}</span>
 				</div>
 			)}
 			<div className="px-4 py-3">

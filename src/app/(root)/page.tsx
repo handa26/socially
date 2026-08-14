@@ -14,6 +14,8 @@ const Homepage = async () => {
 	const posts = await getPosts();
 	const dbUserId = await getDbUserId();
 
+	// console.log(posts);
+
 	return (
 		<div className="">
 			<div className="px-4 pt-4 flex justify-between text-textGray font-bold border-b border-borderGray">
@@ -39,7 +41,7 @@ const Homepage = async () => {
 
 			<CreatePost />
 			{posts.map((post) => (
-				<PostCard key={post.id} post={post} dbUserId={dbUserId} />
+				<PostCard key={post.id} post={post} dbUserId={dbUserId} isRepost={post.isRepost} />
 			))}
 		</div>
 	);
