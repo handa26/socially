@@ -159,7 +159,84 @@ export async function savePost(postId: string) {
 
 export async function getPosts() {
 	try {
+		const userId = await getDbUserId();
+
+		if (!userId) {
+			const posts = await prisma.post.findMany({
+				orderBy: {
+					createdAt: "desc",
+				},
+				include: {
+					author: {
+						select: {
+							id: true,
+							name: true,
+							image: true,
+							username: true,
+						},
+					},
+					comments: {
+						include: {
+							author: {
+								select: {
+									id: true,
+									username: true,
+									image: true,
+									name: true,
+								},
+							},
+						},
+						orderBy: {
+							createdAt: "asc",
+						},
+					},
+					likes: {
+						select: {
+							userId: true,
+						},
+					},
+					reposts: {
+						select: {
+							userId: true,
+						},
+					},
+					_count: {
+						select: {
+							likes: true,
+							comments: true,
+							reposts: true,
+						},
+					},
+				},
+			});
+
+			return posts;
+		}
+
+		// Get the list of users that the current user follows
+		const followedUsers = await prisma.follows.findMany({
+			where: {
+				followerId: userId,
+			},
+			select: {
+				followingId: true,
+			},
+		});
+
+		const followedUserIds = followedUsers.map((follow) => follow.followingId);
+
+		// Include the current user's own posts as well
+		const userAndFollowedIds = [...followedUserIds, userId];
+
+		// Fetch posts from followed users and the current user
 		const posts = await prisma.post.findMany({
+			where: {
+				authorId: {
+					in: userAndFollowedIds,
+				},
+				// Only get original posts (not reposts)
+				isRepost: false,
+			},
 			orderBy: {
 				createdAt: "desc",
 			},
@@ -195,7 +272,17 @@ export async function getPosts() {
 				reposts: {
 					select: {
 						userId: true,
-					}
+						createdAt: true,
+						comment: true,
+						user: {
+							select: {
+								id: true,
+								name: true,
+								username: true,
+								image: true,
+							},
+						},
+					},
 				},
 				_count: {
 					select: {
@@ -207,7 +294,114 @@ export async function getPosts() {
 			},
 		});
 
-		return posts;
+		// Fetch reposts made by followed users (to show as timeline items)
+		const reposts = await prisma.repost.findMany({
+			where: {
+				userId: {
+					in: followedUserIds,
+				},
+			},
+			include: {
+				post: {
+					include: {
+						author: {
+							select: {
+								id: true,
+								name: true,
+								image: true,
+								username: true,
+							},
+						},
+						comments: {
+							include: {
+								author: {
+									select: {
+										id: true,
+										username: true,
+										image: true,
+										name: true,
+									},
+								},
+							},
+							orderBy: {
+								createdAt: "asc",
+							},
+						},
+						likes: {
+							select: {
+								userId: true,
+							},
+						},
+						reposts: {
+							select: {
+								userId: true,
+								createdAt: true,
+								comment: true,
+								user: {
+									select: {
+										id: true,
+										name: true,
+										username: true,
+										image: true,
+									},
+								},
+							},
+						},
+						_count: {
+							select: {
+								likes: true,
+								comments: true,
+								reposts: true,
+							},
+						},
+					},
+				},
+				user: {
+					select: {
+						id: true,
+						name: true,
+						username: true,
+						image: true,
+					},
+				},
+			},
+			orderBy: {
+				createdAt: "desc",
+			},
+		});
+
+		// Transform reposts to match the post structure with repost metadata
+		const transformedReposts = reposts.map((repost) => ({
+			...repost.post,
+			isRepost: true,
+			repostedBy: repost.user,
+			repostedAt: repost.createdAt,
+			repostComment: repost.comment,
+			// Override the author to show the reposter as the feed item owner
+			// but keep original author info in the post
+			feedAuthor: repost.user,
+			originalAuthor: repost.post.author,
+		}));
+
+		// Combine and sort by creation date
+		const allItems = [
+			...posts.map((post) => ({
+				...post,
+				isRepost: false,
+				feedAuthor: post.author,
+				originalAuthor: post.author,
+			})),
+			...transformedReposts,
+		];
+
+		// Sort by createdAt descending
+		allItems.sort((a, b) => {
+			const dateA = new Date(a.createdAt);
+			const dateB = new Date(b.createdAt);
+			return dateB.getTime() - dateA.getTime();
+		});
+
+		return allItems;
 	} catch (error) {
 		console.log("Failed to get posts", error);
 		throw new Error("Failed to get posts");
