@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "tailwind:build": "tailwindcss -i ./src/app/globals.css -o ./src/app/output.css"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.6.4",
@@ -30,6 +31,7 @@
     "lucide-react": "^0.511.0",
     "next": "16.2.12",
     "next-themes": "^0.4.6",
+    "radix-ui": "^1.6.7",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-hot-toast": "^2.5.2",

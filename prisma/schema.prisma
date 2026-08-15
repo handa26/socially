@@ -31,6 +31,10 @@ model User {
   comments Comment[] // One-to-many
   likes    Like[] // One-to-many
 
+  reposts   Repost[]
+  saves     Save[]
+  bookmarks Bookmark[]
+
   followers Follows[] @relation("following")
   following Follows[] @relation("follower")
 
@@ -39,10 +43,23 @@ model User {
 }
 
 model Post {
-  id        String   @id @default(cuid())
-  authorId  String
-  content   String?
-  image     String?
+  id       String  @id @default(cuid())
+  authorId String
+  content  String?
+
+  // Media fields
+  image       String?
+  video       String?
+  mediaType   String? // 'image' | 'video' | 'gif'
+  mediaUrl    String? // Unified media URL
+  aspectRatio String? // 'original' | 'square' | 'video' | 'portrait'
+  isSensitive Boolean @default(false)
+
+  // Repost fields
+  isRepost      Boolean @default(false)
+  repostId      String? // ID of the original post if this is a repost
+  repostComment String? // Optional comment when reposting
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -50,7 +67,19 @@ model Post {
   author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments      Comment[]
   likes         Like[]
+  reposts       Repost[] // Reposts of this post
+  saves         Save[]
+  bookmarks     Bookmark[]
   notifications Notification[]
+
+  // Self-reference for reposts
+  originalPost Post?  @relation("PostReposts", fields: [repostId], references: [id])
+  repostedBy   Post[] @relation("PostReposts")
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@index([isRepost])
+  @@index([repostId])
 }
 
 model Comment {
@@ -61,11 +90,12 @@ model Comment {
   createdAt DateTime @default(now())
 
   // Relations
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author        User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post          Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
   notifications Notification[]
 
   @@index([authorId, postId]) // Composite index for faster queries
+  @@index([postId, createdAt])
 }
 
 model Like {
@@ -80,6 +110,52 @@ model Like {
 
   @@unique([userId, postId]) // Prevent same user liking post twice
   @@index([userId, postId])
+}
+
+model Repost {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String // The original post being reposted
+  comment   String? // Optional comment when reposting
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId]) // Prevent duplicate reposts
+  @@index([userId, postId])
+  @@index([createdAt])
+}
+
+model Save {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId]) // Prevent duplicate saves
+  @@index([userId, postId])
+  @@index([createdAt])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId]) // Prevent duplicate bookmarks
+  @@index([userId, postId])
+  @@index([createdAt])
 }
 
 model Follows {
@@ -97,12 +173,13 @@ model Follows {
 
 model Notification {
   id        String           @id @default(cuid())
-  userId    String
-  creatorId String
+  userId    String // The user receiving the notification
+  creatorId String // The user who triggered the notification
   type      NotificationType
   read      Boolean          @default(false)
   postId    String?
   commentId String?
+  repostId  String? // For repost notifications
   createdAt DateTime         @default(now())
 
   // Relations
@@ -112,12 +189,15 @@ model Notification {
   comment Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+  @@index([userId, read])
 }
 
 enum NotificationType {
   LIKE
   COMMENT
   FOLLOW
+  REPOST
+  SAVE
 }
 
 // After done creating model, push db to prisma using, npx prisma db push
