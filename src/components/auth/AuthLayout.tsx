@@ -2,6 +2,7 @@
 
 import { ReactNode } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface AuthLayoutProps {
 	children: ReactNode;
@@ -45,18 +46,15 @@ const AuthLayout = ({
 				<div className="relative z-10 flex flex-col items-center justify-center w-full h-full px-12 text-white">
 					<div className="max-w-md space-y-8">
 						{/* Logo */}
-						<div className="flex items-center gap-3">
+						<div className="flex items-center gap-1">
 							<div className="flex items-center justify-center">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									className="w-8 h-8"
-									viewBox="0 0 24 24"
-								>
-									<path
-										fill="white"
-										d="M 26.609375 29.023438 L 3.425781 29.023438 L 3.425781 26.707031 L 24.3125 26.707031 L 24.3125 23.242188 L 3.390625 23.242188 L 3.441406 0.015625 L 11.46875 0.015625 L 11.46875 17.117188 L 9.167969 17.117188 L 9.167969 2.335938 L 5.738281 2.335938 L 5.695312 20.925781 L 26.609375 20.925781 L 26.609375 29.023438"
-									/>
-								</svg>
+								<Image
+									src="/socially-logo.png"
+									alt="logo"
+									width={42}
+									height={42}
+									className="object-center mt-1.5"
+								/>
 							</div>
 							<span className="text-3xl font-bold tracking-tight">
 								Socially

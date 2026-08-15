@@ -173,17 +173,15 @@ const LeftBar = ({ user, initialUnreadCount = 0 }: LeftBarProps) => {
 				{/* Logo */}
 				<Link
 					href="/"
-					className="p-2 rounded-full hover:bg-accent/50 transition-colors"
+					className="rounded-full hover:bg-accent/50 transition-colors"
 				>
-					<IconWrapper size="md">
 						<Image
-							src="/icons/logo.svg"
+							src="/socially-logo.png"
 							alt="logo"
-							width={24}
-							height={24}
+							width={48}
+							height={48}
 							className="object-contain"
 						/>
-					</IconWrapper>
 				</Link>
 
 				{/* Menu Items */}
