@@ -1,6 +1,6 @@
 # Socially
 
-**Socially** is a modern X/Twitter clone built with Next.js 15, delivering a minimalist microblogging experience. Users can create image posts via uploadthing, like posts, and get notifications for followers, likes, and comments. It features TailwindCSS and shadcn/ui for a responsive UI, Clerk for authentication, Next.js API Routes for backend logic, and PostgreSQL on Neon with Prisma ORM for type-safe data. Socially prioritizes user engagement and performance.
+**Socially** is a modern X/Twitter clone built with Next.js 16, delivering a minimalist microblogging experience. Users can create image or video posts via uploadthing, like posts, repost and get notifications for followers, likes, repost, and comments. It features TailwindCSS and shadcn/ui for a responsive UI, Clerk for authentication, Next.js API Routes for backend logic, and PostgreSQL on Neon with Prisma ORM for type-safe data. Socially prioritizes user engagement and performance.
 
 ## Tech Stack 🛠️
 
@@ -44,6 +44,9 @@
    ```env
     # Clerk AUTH
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+    NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+    NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
+    NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
     CLERK_SECRET_KEY=
 
     # Neon (PostgreSQL) database
@@ -68,13 +71,25 @@
 
 <div style="margin-top: 12px; margin-bottom: 12px">
   <a href="">
-    <img src="./public/preview/Socially-frontpage.png" alt="homepage" style="width: 100%; border: 2px solid blue; border-radius: 10px;">
+    <img src="./public/preview/socially-timeline.png" alt="homepage" style="width: 100%; border: 2px solid blue; border-radius: 10px;">
   </a>
 </div>
 
 <div style="margin-top: 12px; margin-bottom: 12px">
   <a href="">
-    <img src="./public/preview/Socially-profile.png" alt="profile" style="width: 100%; border: 2px solid blue; border-radius: 10px;">
+    <img src="./public/preview/socially-profile.png" alt="profile" style="width: 100%; border: 2px solid blue; border-radius: 10px;">
+  </a>
+</div>
+
+<div style="margin-top: 12px; margin-bottom: 12px">
+  <a href="">
+    <img src="./public/preview/socially-notification.png" alt="profile" style="width: 100%; border: 2px solid blue; border-radius: 10px;">
+  </a>
+</div>
+
+<div style="margin-top: 12px; margin-bottom: 12px">
+  <a href="">
+    <img src="./public/preview/socially-register.png" alt="profile" style="width: 100%; border: 2px solid blue; border-radius: 10px;">
   </a>
 </div>
 
