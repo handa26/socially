@@ -1,4 +1,5 @@
 import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 import LeftBar from "@/components/LeftBar";
 import RightBar from "@/components/RightBar";
@@ -14,7 +15,10 @@ export default async function RootLayout({
 	modal: React.ReactNode;
 }>) {
 	const authUser = await currentUser();
-  if (!authUser) return null;
+	
+  if (!authUser) {
+		redirect("/sign-in");
+	};
 
   const user = await getUserByClerkId(authUser.id);
   if (!user) return null;
