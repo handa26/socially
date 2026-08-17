@@ -30,6 +30,10 @@ interface PostCardProps {
 	dbUserId: string | null;
 	detailed?: boolean;
 	isRepost?: boolean;
+	video: string;
+	mediaType: "video" | "image";
+	isSensitive: boolean;
+	aspectRation: "string";
 }
 
 const PostCard = ({
@@ -155,7 +159,7 @@ const PostCard = ({
 			}
 		} catch (error) {
 			console.error("Delete error:", error);
-      toast.error("Something went wrong");
+			toast.error("Something went wrong");
 		} finally {
 			setIsDeleting(false);
 		}
@@ -212,7 +216,15 @@ const PostCard = ({
 							<PostContent content={post.content} postId={post.id} />
 
 							{/* Media */}
-							{post.image && <PostMedia image={post.image} />}
+							{(post.image || post.video) && (
+								<PostMedia
+									image={post.image}
+									video={post.video}
+									mediaType={post.mediaType}
+									isSensitive={post.isSensitive}
+									aspectRatio={post.aspectRatio}
+								/>
+							)}
 
 							{/* Actions */}
 							<PostActions
