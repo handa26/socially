@@ -37,6 +37,10 @@ export interface Post {
     comments: number;
     reposts: number;
   };
+  video: string;
+	mediaType: "video" | "image";
+	isSensitive: boolean;
+	aspectRatio: "string";
 }
 
 export interface Notification {
