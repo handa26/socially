@@ -200,6 +200,11 @@ export async function getPosts() {
 							userId: true,
 						},
 					},
+					saves: {
+						select: {
+							userId: true,
+						},
+					},
 					_count: {
 						select: {
 							likes: true,
@@ -282,6 +287,11 @@ export async function getPosts() {
 								image: true,
 							},
 						},
+					},
+				},
+				saves: {
+					select: {
+						userId: true,
 					},
 				},
 				_count: {

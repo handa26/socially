@@ -20,6 +20,10 @@ export interface Repost {
   userId: string;
 }
 
+export interface Saves {
+  userId: string;
+}
+
 export interface Post {
   id: string;
   content: string | null;
@@ -41,6 +45,7 @@ export interface Post {
 	mediaType: "video" | "image";
 	isSensitive: boolean;
 	aspectRatio: "string";
+  saves?: Saves[];
 }
 
 export interface Notification {

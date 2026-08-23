@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { MoreHorizontal, Trash2, Bookmark, ExternalLink } from "lucide-react";
+import {
+	MoreHorizontal,
+	Trash2,
+	Bookmark,
+	ExternalLink,
+	BookmarkCheck,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +25,7 @@ interface PostDropdownProps {
 	onSave: () => void;
 	postId: string;
 	isDeleting: boolean;
+	isSaved?: boolean;
 }
 
 const PostDropdown = ({
@@ -27,6 +34,7 @@ const PostDropdown = ({
 	onSave,
 	postId,
 	isDeleting,
+	isSaved = false,
 }: PostDropdownProps) => {
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
@@ -38,6 +46,8 @@ const PostDropdown = ({
 		await onDelete();
 		setShowDeleteDialog(false);
 	};
+
+	console.log(isSaved);
 
 	return (
 		<div className="shrink-0 ml-2">
@@ -59,8 +69,12 @@ const PostDropdown = ({
 						</DropdownMenuItem>
 					)}
 					<DropdownMenuItem onClick={onSave}>
-						<Bookmark className="h-4 w-4 mr-2" />
-						Save
+						{isSaved ? (
+							<BookmarkCheck className="h-4 w-4 mr-2 text-blue-500" />
+						) : (
+							<Bookmark className="h-4 w-4 mr-2" />
+						)}
+						{isSaved ? "Saved" : "Save"}
 					</DropdownMenuItem>
 					<DropdownMenuItem>
 						<Link href={`/status/${postId}`} className="flex items-center">

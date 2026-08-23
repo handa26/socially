@@ -166,6 +166,79 @@ export async function getUserReposts(userId: string) {
 	}
 }
 
+export async function getUserSavedPosts(userId: string) {
+	try {
+		const savedPosts = await prisma.save.findMany({
+			where: {
+				userId: userId,
+			},
+			include: {
+				post: {
+					include: {
+						author: {
+							select: {
+								id: true,
+								name: true,
+								image: true,
+								username: true,
+							},
+						},
+						comments: {
+							include: {
+								author: {
+									select: {
+										id: true,
+										username: true,
+										image: true,
+										name: true,
+									},
+								},
+							},
+							orderBy: {
+								createdAt: "asc",
+							},
+						},
+						likes: {
+							select: {
+								userId: true,
+							},
+						},
+						reposts: {
+							select: {
+								userId: true,
+							},
+						},
+						saves: {
+							select: {
+								userId: true,
+							},
+						},
+						_count: {
+							select: {
+								likes: true,
+								comments: true,
+								reposts: true,
+							},
+						},
+					},
+				},
+			},
+			orderBy: {
+				createdAt: "desc",
+			},
+		});
+
+		return savedPosts.map((save) => ({
+			...save.post,
+			savedAt: save.createdAt,
+			saveId: save.id,
+		}));
+	} catch (error) {
+		console.error("Error fetching user saved posts:", error);
+		throw new Error("Failed to fetch user saved posts");
+	}
+}
+
 export async function getUserLikedPosts(userId: string) {
 	try {
 		const likedPosts = await prisma.post.findMany({
@@ -175,7 +248,7 @@ export async function getUserLikedPosts(userId: string) {
 						userId,
 					},
 				},
-        isRepost: false,
+				isRepost: false,
 			},
 			include: {
 				author: {
@@ -206,16 +279,16 @@ export async function getUserLikedPosts(userId: string) {
 						userId: true,
 					},
 				},
-        reposts: {
-          select: {
-            userId: true,
-          },
-        },
+				reposts: {
+					select: {
+						userId: true,
+					},
+				},
 				_count: {
 					select: {
 						likes: true,
 						comments: true,
-            reposts: true,
+						reposts: true,
 					},
 				},
 			},

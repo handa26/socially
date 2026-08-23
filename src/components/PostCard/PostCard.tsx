@@ -57,9 +57,15 @@ const PostCard = ({
 	const [hasReposted, setHasReposted] = useState(
 		post?.reposts.some((repost) => repost.userId === dbUserId),
 	);
+	const [isSaved, setIsSaved] = useState(
+		post.saves?.some((save: { userId: string }) => save.userId === dbUserId) ||
+			false,
+	);
 	const [likesCount, setLikesCount] = useState(post._count.likes);
 	const [repostsCount, setRepostsCount] = useState(post._count.reposts);
 	const [commentsCount, setCommentsCount] = useState(post.comments.length);
+
+	// console.log(isSaved);
 
 	const handleLike = async () => {
 		if (isLiking || !user) return;
@@ -165,17 +171,38 @@ const PostCard = ({
 		}
 	};
 
+	// const handleSave = async () => {
+	// 	if (!user) return;
+	// 	try {
+	// 		const result = await savePost(post.id);
+	// 		if (result?.success) {
+	// 			toast.success(
+	// 				result.action === "saved" ? "Saved!" : "Removed from saves",
+	// 			);
+	// 		}
+	// 	} catch (error) {
+	// 		toast.error("Failed to save post");
+	// 	}
+	// };
 	const handleSave = async () => {
 		if (!user) return;
 		try {
+			const prevSaved = isSaved;
+			setIsSaved(!prevSaved);
 			const result = await savePost(post.id);
 			if (result?.success) {
 				toast.success(
 					result.action === "saved" ? "Saved!" : "Removed from saves",
 				);
+				if (!result.success) {
+					setIsSaved(prevSaved);
+				}
+			} else {
+				setIsSaved(prevSaved);
+				toast.error("Failed to save post");
 			}
 		} catch (error) {
-			toast.error("Failed to save post");
+			toast.error("Something went wrong");
 		}
 	};
 
@@ -267,6 +294,7 @@ const PostCard = ({
 						onSave={handleSave}
 						postId={post.id}
 						isDeleting={isDeleting}
+						isSaved={isSaved}
 					/>
 				</div>
 
