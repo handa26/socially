@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,8 +13,8 @@ import SensitiveContentToggle from "./SensitiveContentToggle";
 import CharacterCounter from "./CharacterCounter";
 import PostButton from "./PostButton";
 
-import { createPost } from "@/actions/post.action";
 import { cn } from "@/lib/utils";
+import { usePostMutations } from "@/hooks/usePostMutations";
 
 interface MediaFile {
 	file: File;
@@ -30,8 +29,8 @@ interface Settings {
 
 const CreatePost = ({ isModal = false }: { isModal?: boolean }) => {
 	const { user } = useUser();
-	const router = useRouter();
 	const fileInputRef = useRef<HTMLInputElement>(null);
+	const { createPost: createPostMutation } = usePostMutations();
 
 	const [content, setContent] = useState("");
 	const [media, setMedia] = useState<MediaFile | null>(null);
@@ -83,13 +82,11 @@ const CreatePost = ({ isModal = false }: { isModal?: boolean }) => {
 			return;
 		}
 
-		setIsPosting(true);
-
-		try {
-			// Upload media first if exists
-			let uploadedMediaUrl = null;
-			if (media) {
-				setIsUploading(true);
+		// Upload media first if exists
+		let uploadedMediaUrl = null;
+		if (media) {
+			setIsUploading(true);
+			try {
 				const formData = new FormData();
 				formData.append("file", media.file);
 
@@ -101,33 +98,26 @@ const CreatePost = ({ isModal = false }: { isModal?: boolean }) => {
 				const data = await response.json();
 				if (!response.ok) throw new Error(data.error);
 				uploadedMediaUrl = data.url;
+			} catch (error) {
+				toast.error("Failed to upload media");
 				setIsUploading(false);
+				return;
 			}
-
-			// Create post
-			const result = await createPost({
-				content,
-				mediaUrl: uploadedMediaUrl,
-				mediaType: media?.type || null,
-				isSensitive: settings.sensitive,
-				aspectRatio: settings.type,
-			});
-
-			if (result.success) {
-				toast.success("Post created successfully!");
-				setContent("");
-				handleRemoveMedia();
-				router.refresh();
-			} else {
-				throw new Error(result.error);
-			}
-		} catch (error) {
-			console.error("Failed to create post:", error);
-			toast.error("Failed to create post");
-		} finally {
-			setIsPosting(false);
 			setIsUploading(false);
 		}
+
+		// Create post using mutation
+		createPostMutation.mutate({
+			content,
+			mediaUrl: uploadedMediaUrl,
+			mediaType: media?.type || null,
+			isSensitive: settings.sensitive,
+			aspectRatio: settings.type,
+		});
+
+		// Reset form
+		setContent("");
+		handleRemoveMedia();
 	};
 
 	const getCharacterCount = () => {
@@ -141,7 +131,12 @@ const CreatePost = ({ isModal = false }: { isModal?: boolean }) => {
 	if (!user) return null;
 
 	return (
-		<div className={cn("border-b border-borderGray p-4", isModal && "border-none pt-2")}>
+		<div
+			className={cn(
+				"border-b border-borderGray p-4",
+				isModal && "border-none pt-2",
+			)}
+		>
 			<div className="flex gap-3">
 				{/* Avatar */}
 				<Avatar className="shrink-0" size="lg">

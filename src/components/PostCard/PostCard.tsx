@@ -16,14 +16,9 @@ import PostComments from "./PostComments";
 import PostDropdown from "./PostDropdown";
 import CommentInput from "./CommentInput";
 
-import {
-	toggleLike,
-	createComment,
-	deletePost,
-	repostPost,
-	savePost,
-} from "@/actions/post.action";
+import { repostPost, savePost } from "@/actions/post.action";
 import { Post } from "@/lib/types";
+import { usePostMutations } from "@/hooks/usePostMutations";
 
 interface PostCardProps {
 	post: Post & { _key?: string };
@@ -40,6 +35,13 @@ const PostCard = ({
 }: PostCardProps) => {
 	const { user } = useUser();
 	const isAuthor = dbUserId === post.author.id;
+
+	const {
+		toggleLike: toggleLikeMutation,
+		createComment: createCommentMutation,
+		deletePost: deletePostMutation,
+		repost: repostMutation,
+	} = usePostMutations();
 
 	const [isLiking, setIsLiking] = useState(false);
 	const [isCommenting, setIsCommenting] = useState(false);
@@ -61,8 +63,6 @@ const PostCard = ({
 	const [repostsCount, setRepostsCount] = useState(post._count.reposts);
 	const [commentsCount, setCommentsCount] = useState(post.comments.length);
 
-	// console.log(isSaved);
-
 	const handleLike = async () => {
 		if (isLiking || !user) return;
 
@@ -72,7 +72,9 @@ const PostCard = ({
 			setHasLiked(!prevLiked);
 			setLikesCount((prev) => prev + (prevLiked ? -1 : 1));
 
-			const result = await toggleLike(post.id);
+			// Use the mutation
+			const result = await toggleLikeMutation.mutateAsync(post.id);
+
 			if (!result?.success) {
 				setHasLiked(prevLiked);
 				setLikesCount((prev) => prev - (prevLiked ? -1 : 1));
@@ -90,12 +92,16 @@ const PostCard = ({
 
 		try {
 			setIsCommenting(true);
-			const result = await createComment(post.id, content.trim());
+
+			// Use the mutation
+			const result = await createCommentMutation.mutateAsync({
+				postId: post.id,
+				content: content.trim(),
+			});
 
 			if (result?.success) {
 				setCommentsCount((prev) => prev + 1);
 				setShowReplyInput(false);
-				toast.success("Reply posted!");
 				return true;
 			} else {
 				toast.error("Failed to post reply");
@@ -145,11 +151,11 @@ const PostCard = ({
 
 		try {
 			setIsDeleting(true);
-			const result = await deletePost(post.id);
+
+			// Use the mutation
+			const result = await deletePostMutation.mutateAsync(post.id);
 
 			if (result.success) {
-				toast.success("Post deleted successfully");
-
 				if (
 					typeof window !== "undefined" &&
 					window.location.pathname.includes("/status/")
@@ -167,19 +173,6 @@ const PostCard = ({
 		}
 	};
 
-	// const handleSave = async () => {
-	// 	if (!user) return;
-	// 	try {
-	// 		const result = await savePost(post.id);
-	// 		if (result?.success) {
-	// 			toast.success(
-	// 				result.action === "saved" ? "Saved!" : "Removed from saves",
-	// 			);
-	// 		}
-	// 	} catch (error) {
-	// 		toast.error("Failed to save post");
-	// 	}
-	// };
 	const handleSave = async () => {
 		if (!user) return;
 		try {
@@ -266,8 +259,8 @@ const PostCard = ({
 									);
 									toast.success("Link copied!");
 								}}
-								isLiking={isLiking}
-								isReposting={isReposting}
+								isLiking={isLiking || toggleLikeMutation.isPending}
+								isReposting={isReposting || repostMutation.isPending}
 								showReplyInput={showReplyInput}
 							/>
 
@@ -275,7 +268,7 @@ const PostCard = ({
 							{showReplyInput && user && (
 								<CommentInput
 									onSubmit={handleComment}
-									isCommenting={isCommenting}
+									isCommenting={isCommenting || createCommentMutation.isPending}
 									placeholder="Write a reply..."
 									autoFocus
 								/>
@@ -289,7 +282,7 @@ const PostCard = ({
 						onDelete={handleDelete}
 						onSave={handleSave}
 						postId={post.id}
-						isDeleting={isDeleting}
+						isDeleting={isDeleting || deletePostMutation.isPending}
 						isSaved={isSaved}
 					/>
 				</div>
