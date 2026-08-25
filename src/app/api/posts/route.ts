@@ -86,8 +86,14 @@ export async function GET(request: NextRequest) {
 			const items = hasMore ? posts.slice(0, -1) : posts;
 			const nextCursor = hasMore ? items[items.length - 1]?.id : null;
 
+			// Add unique _key for each post
+      const postsWithKeys = items.map((post) => ({
+        ...post,
+        _key: `post_${post.id}`,
+      }));
+
 			return NextResponse.json({
-				posts: items,
+				posts: postsWithKeys,
 				nextCursor,
 				hasMore,
 				total: items.length,
@@ -274,18 +280,20 @@ export async function GET(request: NextRequest) {
 			feedAuthor: repost.user,
 			originalAuthor: repost.post.author,
 			_repostId: repost.id,
+			_key: `repost_${repost.id}_${repost.post.id}`, // Unique key combining repost ID and post ID
 		}));
 
+		// Transform original posts with unique keys
+    const transformedPosts = posts.map((post) => ({
+      ...post,
+      isRepost: false,
+      feedAuthor: post.author,
+      originalAuthor: post.author,
+      _key: `post_${post.id}`,
+    }));
+
 		// Combine and sort
-		const allItems = [
-			...posts.map((post) => ({
-				...post,
-				isRepost: false,
-				feedAuthor: post.author,
-				originalAuthor: post.author,
-			})),
-			...transformedReposts,
-		];
+		const allItems = [...transformedPosts, ...transformedReposts];
 
 		allItems.sort((a, b) => {
 			const dateA = new Date(a.createdAt);

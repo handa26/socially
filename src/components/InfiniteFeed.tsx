@@ -138,7 +138,7 @@ const InfiniteFeed = ({ dbUserId, userProfileId }: InfiniteFeedProps) => {
       <div className="divide-y divide-border">
         {allPosts.map((post: any) => (
           <PostCard
-            key={post.id}
+            key={post._key || post.id}
             post={post}
             dbUserId={dbUserId}
             isRepost={post.isRepost}

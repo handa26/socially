@@ -26,7 +26,7 @@ import {
 import { Post } from "@/lib/types";
 
 interface PostCardProps {
-	post: Post;
+	post: Post & { _key?: string };
 	dbUserId: string | null;
 	detailed?: boolean;
 	isRepost?: boolean;
