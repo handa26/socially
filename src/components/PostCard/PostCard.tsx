@@ -30,10 +30,6 @@ interface PostCardProps {
 	dbUserId: string | null;
 	detailed?: boolean;
 	isRepost?: boolean;
-	video: string;
-	mediaType: "video" | "image";
-	isSensitive: boolean;
-	aspectRation: "string";
 }
 
 const PostCard = ({
