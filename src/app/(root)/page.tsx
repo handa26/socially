@@ -3,12 +3,15 @@ import { currentUser } from "@clerk/nextjs/server";
 
 import CreatePost from "@/components/CreatePost/CreatePost";
 import Feed from "@/components/Feed";
+import InfiniteFeed from "@/components/InfiniteFeed";
 
-import { syncUser } from "@/actions/user.action";
+import { getDbUserId, syncUser } from "@/actions/user.action";
 
 const Homepage = async () => {
 	const user = await currentUser();
 	if (user) await syncUser();
+
+	const dbUserId = await getDbUserId();
 
 	return (
 		<div className="">
@@ -34,7 +37,7 @@ const Homepage = async () => {
 			</div>
 
 			<CreatePost />
-			<Feed />
+			<InfiniteFeed dbUserId={dbUserId} />
 		</div>
 	);
 };

@@ -48,6 +48,12 @@ importers:
       '@radix-ui/react-tabs':
         specifier: ^1.1.12
         version: 1.1.21(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@tanstack/react-query':
+        specifier: ^5.102.3
+        version: 5.102.3(react@19.2.8)
+      '@tanstack/react-query-devtools':
+        specifier: ^5.102.3
+        version: 5.102.3(@tanstack/react-query@5.102.3(react@19.2.8))(react@19.2.8)
       '@uploadthing/react':
         specifier: ^7.3.1
         version: 7.3.3(next@16.2.12(@babel/core@7.29.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)(uploadthing@7.7.4(next@16.2.12(@babel/core@7.29.7)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(tailwindcss@4.3.3))
@@ -81,6 +87,9 @@ importers:
       react-hot-toast:
         specifier: ^2.5.2
         version: 2.6.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react-infinite-scroll-component:
+        specifier: ^7.2.1
+        version: 7.2.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       tailwind-merge:
         specifier: ^3.3.0
         version: 3.6.0
@@ -1554,6 +1563,23 @@ packages:
 
   '@tanstack/query-core@5.101.4':
     resolution: {integrity: sha512-gNwcvOJcRbLWPOLG/2OBm+zM+Yv+MKsXKEOWC57USuZDEsI71hEErQsiEGx5wX9rzWWkfwM0fVSPoiIFSsxfiw==}
+
+  '@tanstack/query-core@5.102.3':
+    resolution: {integrity: sha512-5O2VEceonqC4uaTLUGglb0hgPouWCJ4K1ykVWyeV8aThhdNCzwpwu01bYoaRNJ9mgFUXS7Kf9utJ46ysT8m+bw==}
+
+  '@tanstack/query-devtools@5.102.3':
+    resolution: {integrity: sha512-J/QKK3J+YuqOY/CQBypJSUGANGcdurFyHP4GZDP90QiB3G/wQVeGamo3zFJ/sTcM2uvF3+V7K3rS521xS8B3lQ==}
+
+  '@tanstack/react-query-devtools@5.102.3':
+    resolution: {integrity: sha512-OFxO8PAccjxdf2l1kt0MpcUdrVdSside4lPyucsrSZHssvHc4Vaz1RdtRIuEU0C0Z0P2vMWVIqfF2WlmFtdsng==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.102.3
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.102.3':
+    resolution: {integrity: sha512-nHazxUEUQSGJOswGgSL2DI77f2K75WRCowDgaiyEi0ACocZTFKewTv+A/rJfq6QkuE35rVPff1QUT3ClbaePGQ==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tybys/wasm-util@0.10.3':
     resolution: {integrity: sha512-F3fo1MYrRJYL3zER0OUOmkutjr1Vp23m7OsSgp7nq4SP6OqX6C/56XFIPAl5bt3zaBRjmW7SGz3u/6LwFpYcOg==}
@@ -3137,6 +3163,13 @@ packages:
     peerDependencies:
       react: '>=16'
       react-dom: '>=16'
+
+  react-infinite-scroll-component@7.2.1:
+    resolution: {integrity: sha512-yPuEf6VHBJXFt+YXDxjlnAuhorUwiA2cKURx/P6a7WW3k+TvwY/mbx7KP1rQ1hxGzDcwreczRyLIv6eSd1sFIw==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: '>=17'
+      react-dom: '>=17'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -4998,6 +5031,21 @@ snapshots:
 
   '@tanstack/query-core@5.101.4': {}
 
+  '@tanstack/query-core@5.102.3': {}
+
+  '@tanstack/query-devtools@5.102.3': {}
+
+  '@tanstack/react-query-devtools@5.102.3(@tanstack/react-query@5.102.3(react@19.2.8))(react@19.2.8)':
+    dependencies:
+      '@tanstack/query-devtools': 5.102.3
+      '@tanstack/react-query': 5.102.3(react@19.2.8)
+      react: 19.2.8
+
+  '@tanstack/react-query@5.102.3(react@19.2.8)':
+    dependencies:
+      '@tanstack/query-core': 5.102.3
+      react: 19.2.8
+
   '@tybys/wasm-util@0.10.3':
     dependencies:
       tslib: 2.8.1
@@ -6797,6 +6845,11 @@ snapshots:
     dependencies:
       csstype: 3.2.3
       goober: 2.1.19(csstype@3.2.3)
+      react: 19.2.8
+      react-dom: 19.2.8(react@19.2.8)
+
+  react-infinite-scroll-component@7.2.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
+    dependencies:
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
 
